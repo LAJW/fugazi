@@ -1,0 +1,33 @@
+{
+  "name": "flowless",
+  "version": "0.0.0",
+  "description": "Functional Asynchronous Library",
+  "main": "index.js",
+  "scripts": {
+    "mocha":    "node_modules/.bin/mocha",
+    "test":     "npm run mocha -- test/* --recursive"
+    "coverage": "node_modules/.bin/istanbul npm test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lajw/flowless.git"
+  },
+  "keywords": [
+    "functional",
+    "async",
+    "promise"
+  ],
+  "author": "Lukasz A.J. Wrona (layv.net)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/lajw/flowless/issues"
+  },
+  "homepage": "https://github.com/lajw/flowless#readme",
+  "dependencies": {
+    "ramda": "^0.20.0"
+  },
+  "dev-dependencies": {
+    "istanbul": "^0.4.2",
+    "mocha": "^2.4.5",
+  }
+}
