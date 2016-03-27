@@ -83,3 +83,70 @@ describe("curry", () => {
   })
 
 })
+
+describe("range", () => {
+  it("single parameter > 0 => range from 0 ascending", () => {
+    const result = [ ]
+    for (const i of F.range(5)) {
+      result.push(i)
+    }
+    assert.deepEqual(result, [0, 1, 2, 3, 4, 5])
+  })
+  it("single parameter < 0 => range from 0 descending", () => {
+    const result = [ ]
+    for (const i of F.range(-5)) {
+      result.push(i)
+    }
+    assert.deepEqual(result, [0, -1, -2, -3, -4, -5])
+  })
+  it("two parameters, range from min to max ascending", () => {
+    const result = [ ]
+    for (const i of F.range(5, 10)) {
+      result.push(i)
+    }
+    assert.deepEqual(result, [5, 6, 7, 8, 9, 10])
+  })
+  it("two parameters, range from max to min descending", () => {
+    const result = [ ]
+    for (const i of F.range(10, 5)) {
+      result.push(i)
+    }
+    assert.deepEqual(result, [10, 9, 8, 7, 6, 5])
+  })
+})
+
+describe("forEach", () => {
+  it("iterate over an array", () => {
+    const arr    = [7, 6, 8, 9]
+    const result = [ ]
+    F.forEach((value, i, arr) => result.push({ value, i, arr}), arr)
+    assert.deepEqual(result, [
+      { value: 7, i: 0, arr },
+      { value: 6, i: 1, arr },
+      { value: 8, i: 2, arr },
+      { value: 9, i: 3, arr }
+    ])
+  })
+  it("iterate over a range", () => {
+    const range  = F.range(5, 1)
+    const result = [ ]
+    F.forEach((value, i, range) => result.push({ value, i, range}), range)
+    assert.deepEqual(result, [
+      { value: 5, i: 0, range },
+      { value: 4, i: 1, range },
+      { value: 3, i: 2, range },
+      { value: 2, i: 3, range },
+      { value: 1, i: 4, range }
+    ])
+  })
+  it("iterate over an object", () => {
+    const object = { one: "Uno", two: "Dos", three: "Tres" }
+    const result = [ ]
+    F.forEach((value, key, object) => result.push({ value, key, object}), object)
+    assert.deepEqual(result, [
+      { value: "Uno",  key: "one",   object },
+      { value: "Dos",  key: "two",   object },
+      { value: "Tres", key: "three", object },
+    ])
+  })
+})
