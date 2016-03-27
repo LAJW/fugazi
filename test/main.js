@@ -150,3 +150,26 @@ describe("forEach", () => {
     ])
   })
 })
+
+describe("filter", () => {
+  it("filter array by value", () => {
+    const arr = [7, -1, 6, -2, 8, 9, -4]
+    const result = F.filter(value => value < 0, arr)
+    assert.deepEqual(result, [-1, -2, -4])
+  })
+  it("filter array by key", () => {
+    const arr = [7, -1, 6, -2, 8, 9, -4]
+    const result = F.filter((value, key) => key % 2, arr)
+    assert.deepEqual(result, [-1, -2, 9])
+  })
+  it("filter object by value", () => {
+    const object = { one: "Uno", two: "Dos", three: "Tres" }
+    const result = F.filter(value => value.indexOf("s") >= 0, object)
+    assert.deepEqual(result, { two: "Dos", three: "Tres" })
+  })
+  it("filter object by key", () => {
+    const object = { one: "Uno", two: "Dos", three: "Tres" }
+    const result = F.filter((value, key) => key.indexOf("o") >= 0, object)
+    assert.deepEqual(result, { one: "Uno", two: "Dos" })
+  })
+})

@@ -17,7 +17,7 @@ const callThen = func => (...args) =>
   ? Promise.all(args).then(args => func(...args))
   : func(...args)
 
-const forEachObject = (func, object) => {
+const forEachEnumerable = (func, object) => {
   for (const key in object) {
     func(object[key], key, object)
   }
@@ -29,6 +29,26 @@ const forEachIterable = (func, object) => {
     func(element, i, object)
     i++
   }
+}
+
+const filterEnumerable = (func, enumerable) => {
+  const result = { }
+  forEachEnumerable((value, key) => {
+    if (func(value, key, enumerable)) {
+      result[key] = value
+    }
+  }, enumerable)
+  return result
+}
+
+const filterIterable = (func, iterable) => {
+  const result = [ ]
+  forEachIterable((value, key) => {
+    if (func(value, key, iterable)) {
+      result.push(value)
+    }
+  }, iterable)
+  return result
 }
 
 const rangeAsc = function*(l, r) {
@@ -105,18 +125,29 @@ F.range = callThen((a1, a2) => {
 
 // Utilities
 
-
 F.forEach = F.curry((func, object) => {
   if (object[Symbol.iterator]) {
     forEachIterable(func, object)
   } else {
-    forEachObject(func, object)
+    forEachEnumerable(func, object)
   }
 })
 
 // iterate over each property in an enumerable object
-F.forEachObject = F.curry((func, object) => forEachObject(func, object))
+F.forEachEnumerable = F.curry(forEachEnumerable)
 
 // iterate over each property in an iterable object
-F.forEachIterable = F.curry((func, iterable) => forEachIterable(func, object))
+F.forEachIterable = F.curry(forEachIterable)
+
+F.filter = F.curry((func, object) => {
+  if (object[Symbol.iterator]) {
+    return filterIterable(func, object)
+  } else {
+    return filterEnumerable(func, object)
+  }
+})
+
+F.filterEnumerable = F.curry(filterEnumerable)
+
+F.filterIterable = F.curry(filterIterable)
 
