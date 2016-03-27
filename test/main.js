@@ -62,3 +62,24 @@ describe("compose", () => {
   })
 
 })
+
+describe("curry", () => {
+
+  it("synchronous arguments", () => {
+    const addMul = F.curry((a, b, c) => {
+      return (a + b) * c
+    })
+    const result = addMul(2)(3)(5)
+    assert.strictEqual(result, 25)
+  })
+
+  it("asynchronous arguments - detect and await, return promise", done => {
+    const addMul = F.curry((a, b, c) => {
+      return (a + b) * c
+    })
+    addMul(2, Promise.resolve(3))(5)
+    .then(result => assert.strictEqual(result, 25))
+    .end(done)
+  })
+
+})
