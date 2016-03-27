@@ -151,6 +151,7 @@ describe("forEach", () => {
   })
 })
 
+// TODO: Filter with asynchronous condition
 describe("filter", () => {
   it("filter array by value", () => {
     const arr = [7, -1, 6, -2, 8, 9, -4]
@@ -171,5 +172,48 @@ describe("filter", () => {
     const object = { one: "Uno", two: "Dos", three: "Tres" }
     const result = F.filter((value, key) => key.indexOf("o") >= 0, object)
     assert.deepEqual(result, { one: "Uno", two: "Dos" })
+  })
+})
+
+// TODO: Autosync at the end if returned through promise
+describe("map", () => {
+  it("map array by value", () => {
+    const result = F.map(x => x * 2, [1, 2, 3, 4, 5])
+    assert.deepEqual(result, [2, 4, 6, 8, 10])
+  })
+  it("map array by key", () => {
+    const result = F.map((value, key) => value * key, [1, 2, 3, 4, 5])
+    assert.deepEqual(result, [0, 2, 6, 12, 20])
+  })
+  it("map object by value", () => {
+    const result = F.map(x => x * 2, { one: 1, two: 2, three: 3 })
+    assert.deepEqual(result, { one: 2, two: 4, three: 6 })
+  })
+  it("map object by key", () => {
+    const result = F.map((value, key) => key, { one: 1, two: 2, three: 3 })
+    assert.deepEqual(result, { one: "one", two: "two", three: "three" })
+  })
+  it("map object by object", () => {
+    const result = F.map({
+      type:      x => x,
+      timestamp: unix => new Date(unix),
+      first:     (val, key, object) => object.context.items[0],
+      object:    (val, key, object) => object.context.object,
+      static:    "static value"
+    }, {
+      context: {
+        items: [ "ignore", "bad" ],
+        object: "structure"
+      },
+      type: "object",
+      timestamp: 1000
+    })
+    assert.deepEqual(result, {
+      type:      "object",
+      timestamp: new Date(1000),
+      first:     "ignore",
+      object:    "structure",
+      static:    "static value"
+    })
   })
 })

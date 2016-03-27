@@ -51,6 +51,40 @@ const filterIterable = (func, iterable) => {
   return result
 }
 
+const mapEnumerable = (func, enumerable) => {
+  const result = { }
+  if (typeof func === "function") {
+    // regular mapping
+    forEachEnumerable((value, key) => {
+      result[key] = func(value, key, enumerable)
+    }, enumerable)
+  } else {
+    // func is object => map params
+    forEachEnumerable((func, key) => {
+      if (typeof func === "function") {
+        result[key] = func(enumerable[key], key, enumerable)
+      } else {
+        result[key] = func
+      }
+    }, func)
+  }
+  return result
+}
+
+const mapIterable = (func, iterable) => {
+  const result = [ ]
+  if (typeof func === "function") {
+    forEachIterable((value, key) => {
+      result.push(func(value, key, iterable))
+    }, iterable)
+  } else {
+    forEachIterable((value, key) => {
+      result.push(func[key](value, key, iterable))
+    }, iterable)
+  }
+  return result
+}
+
 const rangeAsc = function*(l, r) {
   for (; l <= r; l++) {
     yield l
@@ -151,3 +185,14 @@ F.filterEnumerable = F.curry(filterEnumerable)
 
 F.filterIterable = F.curry(filterIterable)
 
+F.map = F.curry((func, object) => {
+  if (object[Symbol.iterator]) {
+    return mapIterable(func, object)
+  } else {
+    return mapEnumerable(func, object)
+  }
+})
+
+F.mapEnumerable = F.curry(mapEnumerable)
+
+F.mapIterable = F.curry(mapIterable)
