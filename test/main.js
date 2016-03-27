@@ -1,6 +1,6 @@
 "use strict"
 
-const F = require("../bin/flowless")
+const F      = require("../bin/flowless")
 const assert = require("assert")
 
 Object.defineProperty(Promise.prototype, 'end', {
@@ -9,20 +9,56 @@ Object.defineProperty(Promise.prototype, 'end', {
 
 describe("compose", () => {
 
+  it("Simple function, pass in parameters", () => {
+    const sum = (a, b) => a + b 
+    const result = F.compose(sum)(3, 5)
+    assert.strictEqual(result, 8)
+  })
+
   it("Single function, wait for parameters", done => {
     const sum = (a, b) => a + b 
-    const object = {  }
     F.compose(sum)(3, Promise.resolve(5))
     .then(result => assert.strictEqual(result, 8))
     .end(done)
   })
 
-  it("Single function, wait for parameters", done => {
-    const sum = (a, b) => a + b 
-    const object = {  }
-    F.compose(sum)(3, Promise.resolve(5))
-    .then(result => assert.strictEqual(result, 8))
+  it("Chain forward multiple functions", () => {
+    const sum = a => b => a + b
+    const mul = a => b => a * b
+    const result = F.compose(sum(10), mul(2), sum(3))(10)
+    assert.strictEqual(result, 43)
+  })
+
+  it("Chain forward multiple functions, promise arguments", done => {
+    const sum = a => b => a + b
+    const mul = a => b => a * b
+    F.compose(sum(10), mul(2), sum(3))(Promise.resolve(10))
+    .then(result => assert.strictEqual(result, 43))
     .end(done)
+  })
+
+  it("Chain forward multiple functions, promise function result", done => {
+    const sum = a => b => a + b
+    const mul = a => b => Promise.resolve(a * b)
+    F.compose(sum(10), mul(2), sum(3))(10)
+    .then(result => assert.strictEqual(result, 43))
+    .end(done)
+  })
+
+  it("Catcher function should catch synchronous errors.", () => {
+    const object = { }
+    const result = F.compose(result => { if (isNaN(result)) throw object },
+                             x => -x,
+                             F.catch(err => err))("not a number")
+    assert.strictEqual(result, object)
+  })
+
+  it("Catcher function should catch asynchronous errors.", () => {
+    const object = { }
+    F.compose(result => { if (isNaN(result)) throw object },
+              x => -x,
+              F.catch(err => err))(Promise.resolve("not a number"))
+    .then(err => assert.strictEqual(result, object))
   })
 
 })

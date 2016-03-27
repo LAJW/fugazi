@@ -4,16 +4,49 @@
 const R = require("ramda")
 
 /******************************************************************************/
+
+const id = x => x
 const isPromise = x => x && x instanceof Promise
+const apply = func => args => func(...args)
 
 module.exports = function F() { }
 
 const F = module.exports
 
 F.compose = (...funcs) => (...args) => {
-  if (R.any(arg => arg && arg instanceof Promise, args)) {
-    return Promise.all(args).then(args => funcs[0](...args))
+  funcs[0] = apply(funcs[0])
+  if (R.any(isPromise, args)) {
+    var value = Promise.all(args)
   } else {
-    return funcs[0](...args)
+    var value = args
   }
+  let isError = false // is value an error
+  for (var i = 0, il = funcs.length; i < il; i++) {
+    const func = funcs[i]
+    if (isPromise(value)) {
+      if (func.catcher) {
+        value = value.catch(func)
+      } else {
+        value = value.then(func)
+      }
+    } else if (!isError ^ func.catcher) {
+      try {
+        value = func(value)
+        isError = false
+      } catch (error) {
+        value = error
+        isError = true
+      }
+    }
+  }
+  if (isError) {
+    throw value
+  } else {
+    return value
+  }
+}
+
+F.catch = func => {
+  func.catcher = true
+  return func
 }
