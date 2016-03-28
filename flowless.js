@@ -53,36 +53,75 @@ const filterIterable = (func, iterable) => {
 
 const mapEnumerable = (func, enumerable) => {
   const result = { }
+  const promises = [ ]
   if (typeof func === "function") {
     // regular mapping
     forEachEnumerable((value, key) => {
-      result[key] = func(value, key, enumerable)
+      const element = func(value, key, enumerable)
+      if (isPromise(element)) {
+        promises.push(element.then(value => { result[key] = value }))
+      } else {
+        result[key] = element
+      }
     }, enumerable)
   } else {
     // func is object => map params
     forEachEnumerable((func, key) => {
       if (typeof func === "function") {
-        result[key] = func(enumerable[key], key, enumerable)
+        const element = func(enumerable[key], key, enumerable)
+        if (isPromise(element)) {
+          promises.push(element.then(value => { result[key] = value }))
+        } else {
+          result[key] = element
+        }
       } else {
-        result[key] = func
+        if (isPromise(func)) {
+          promises.push(func.then(value => { result[key] = value }))
+        } else {
+          result[key] = func
+        }
       }
     }, func)
   }
-  return result
+  if (promises.length) {
+    return Promise.all(promises)
+    .then(() => result)
+  } else {
+    return result
+  }
 }
 
 const mapIterable = (func, iterable) => {
   const result = [ ]
+  let asyncrhonous = false
   if (typeof func === "function") {
     forEachIterable((value, key) => {
-      result.push(func(value, key, iterable))
-    }, iterable)
-  } else {
-    forEachIterable((value, key) => {
-      result.push(func[key](value, key, iterable))
+      const element = func(value, key, iterable)
+      if (isPromise(element)) {
+        asyncrhonous = true
+      }
+      result.push(element)
     }, iterable)
   }
-  return result
+  if (asyncrhonous) {
+    return Promise.all(result)
+  } else {
+    return result
+  }
+}
+
+const reduceEnumerable = (func, prev, enumerable) => {
+  forEachEnumerable((value, key) => {
+    prev = func(prev, value, key, enumerable)
+  }, enumerable)
+  return prev
+}
+
+const reduceIterable = (func, prev, iterable) => {
+  forEachIterable((value, key) => {
+    prev = func(prev, value, key, iterable)
+  }, iterable)
+  return prev
 }
 
 const rangeAsc = function*(l, r) {
@@ -196,3 +235,15 @@ F.map = F.curry((func, object) => {
 F.mapEnumerable = F.curry(mapEnumerable)
 
 F.mapIterable = F.curry(mapIterable)
+
+F.reduce = F.curry((func, prev, object) => {
+  if (object[Symbol.iterator]) {
+    return reduceIterable(func, prev, object)
+  } else {
+    return reduceEnumerable(func, prev, object)
+  }
+})
+
+F.reduceIterable = F.curry(reduceIterable)
+
+F.reduceEnumerable = F.curry(reduceEnumerable)

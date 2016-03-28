@@ -175,7 +175,6 @@ describe("filter", () => {
   })
 })
 
-// TODO: Autosync at the end if returned through promise
 describe("map", () => {
   it("map array by value", () => {
     const result = F.map(x => x * 2, [1, 2, 3, 4, 5])
@@ -215,5 +214,72 @@ describe("map", () => {
       object:    "structure",
       static:    "static value"
     })
+  })
+  it("array + asynchronous callback, synchronize automatically", done => {
+    F.map(x => Promise.resolve(x * 2), [1, 2, 3, 4, 5])
+    .then(result => assert.deepEqual(result, [2, 4, 6, 8, 10]))
+    .end(done)
+  })
+  it("object + asynchronous callback, synchronize automatically", done => {
+    F.map(Promise.resolve(x => x * 2), { one: 1, two: 2, three: 3 })
+    .then(result => assert.deepEqual(result, { one: 2, two: 4, three: 6 }))
+    .end(done)
+  })
+  it("object + asynchronous object parameters, synchronize automatically", done => {
+    F.map({
+      type:      x => Promise.resolve(x),
+      timestamp: unix => new Date(unix),
+      first:     (val, key, object) => object.context.items[0],
+      object:    (val, key, object) => object.context.object,
+      static:    "static value",
+      promised:  Promise.resolve("promised value")
+    }, {
+      context: {
+        items: [ "ignore", "bad" ],
+        object: "structure"
+      },
+      type: "object",
+      timestamp: 1000
+    })
+    .then(result => assert.deepEqual(result, {
+      type:      "object",
+      timestamp: new Date(1000),
+      first:     "ignore",
+      object:    "structure",
+      static:    "static value",
+      promised:  "promised value"
+    }))
+    .end(done)
+  })
+})
+
+// TODO: .then through promised steps
+describe("reduce", () => {
+  it("sum range", () => {
+    const result = F.reduce((prev, cur) => prev + cur, 0, F.range(1, 10))
+    assert.strictEqual(result, 55)
+  })
+  it("key value to object", () => {
+    const result = F.reduce((object, arr) =>
+                              { object[arr[0]] = arr[1]; return object },
+                            { }, [
+                              [ 'one',   1 ],
+                              [ 'two',   2 ],
+                              [ 'three', 3 ]
+                            ])
+    assert.deepEqual(result, { one: 1, two: 2, three: 3 })
+  })
+  it("object to key-value", () => {
+    const result = F.reduce((arr, value, key) =>
+                              { arr.push([ key, value ]); return arr }, [ ], {
+                              'one':   1,
+                              'two':   2,
+                              'three': 3
+                            })
+    assert.deepEqual(result, [
+      [ 'one',   1 ],
+      [ 'two',   2 ],
+      [ 'three', 3 ]
+    ])
   })
 })
