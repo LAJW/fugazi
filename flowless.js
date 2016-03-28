@@ -247,6 +247,25 @@ F.args = callThen(function() { return Array.prototype.slice.call(arguments) })
 
 F.param = F.curry((key, base) => base ? base[key] : undefined)
 
+F.ifElse = F.curry((condFunc, trueFunc, falseFunc, value) => {
+  const condition = condFunc(value)
+  if (isPromise(condition)) {
+    return condition.then(condition => {
+      if (condition) {
+        return trueFunc(value)
+      } else {
+        return falseFunc(value)
+      }
+    })
+  } else {
+    if (condition) {
+      return trueFunc(value)
+    } else {
+      return falseFunc(value)
+    }
+  }
+})
+
 F.forEach = F.curry((func, object) => {
   if (object[Symbol.iterator]) {
     forEachIterable(func, object)

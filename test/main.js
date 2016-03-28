@@ -148,6 +148,20 @@ describe("param", () => {
   })
 })
 
+describe("ifElse", () => {
+  it("synchronous condition", () => {
+    const abs = F.ifElse(a => a >= 0, a => a, a => a * -1)
+    assert.strictEqual(abs(5), 5)
+    assert.strictEqual(abs(-3), 3)
+  })
+  it("asyncrhonous condition", done => {
+    const abs = F.ifElse(a => Promise.resolve(a >= 0), a => a, a => a * -1)
+    abs(5).then(result => assert.strictEqual(result, 5))
+    .then(() => abs(-3).then(result => assert.strictEqual(result, 3)))
+    .then(done)
+  })
+})
+
 describe("forEach", () => {
   it("iterate over an array", () => {
     const arr    = [7, 6, 8, 9]
