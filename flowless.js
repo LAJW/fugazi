@@ -112,14 +112,22 @@ const mapIterable = (func, iterable) => {
 
 const reduceEnumerable = (func, prev, enumerable) => {
   forEachEnumerable((value, key) => {
-    prev = func(prev, value, key, enumerable)
+    if (isPromise(prev)) {
+      prev = prev.then(prev => func(prev, value, key, enumerable))
+    } else {
+      prev = func(prev, value, key, enumerable)
+    }
   }, enumerable)
   return prev
 }
 
 const reduceIterable = (func, prev, iterable) => {
   forEachIterable((value, key) => {
-    prev = func(prev, value, key, iterable)
+    if (isPromise(prev)) {
+      prev = prev.then(prev => func(prev, value, key, iterable))
+    } else {
+      prev = func(prev, value, key, iterable)
+    }
   }, iterable)
   return prev
 }

@@ -253,7 +253,6 @@ describe("map", () => {
   })
 })
 
-// TODO: .then through promised steps
 describe("reduce", () => {
   it("sum range", () => {
     const result = F.reduce((prev, cur) => prev + cur, 0, F.range(1, 10))
@@ -281,5 +280,16 @@ describe("reduce", () => {
       [ 'two',   2 ],
       [ 'three', 3 ]
     ])
+  })
+  it("sum asynchronous range", done => {
+    F.reduce((prev, cur) => Promise.resolve(prev + cur), 0, F.range(1, 10))
+    .then(result => assert.strictEqual(result, 55))
+    .end(done)
+  })
+  it("sum object asynchronously", done => {
+    F.reduce((prev, cur) => Promise.resolve(prev + cur), 0,
+             { one: 1, two: 2, three: 3 })
+    .then(result => assert.strictEqual(result, 6))
+    .end(done)
   })
 })
