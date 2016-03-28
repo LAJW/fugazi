@@ -33,21 +33,50 @@ const forEachIterable = (func, object) => {
 
 const filterEnumerable = (func, enumerable) => {
   const result = { }
+  let   promise
   forEachEnumerable((value, key) => {
-    if (func(value, key, enumerable)) {
+    const condition = func(value, key, enumerable)
+    if (isPromise(condition)) {
+      promise = condition.then(condition => {
+        if (condition) {
+          result[key] = value
+        }
+      })
+    } else if (condition) {
       result[key] = value
     }
   }, enumerable)
-  return result
+  if (promise) {
+    return promise.then(() => result)
+  } else {
+    return result
+  }
 }
 
 const filterIterable = (func, iterable) => {
-  const result = [ ]
+  const result     = [ ] // results resolved immediately
+  const rest       = [ ] // unresolved values
+  const conditions = [ ] // asynchronous condition map for rest
   forEachIterable((value, key) => {
-    if (func(value, key, iterable)) {
+    const condition = func(value, key, iterable)
+    if (conditions.length || isPromise(condition)) {
+      conditions.push(condition)
+      rest.push(value)
+    } else if (condition) {
       result.push(value)
     }
   }, iterable)
+  if (conditions.length) {
+    return Promise.all(conditions)
+    .then(conditions => {
+      conditions.forEach((condition, key) => {
+        if (condition) {
+          result.push(rest[key])
+        }
+      })
+      return result
+    })
+  }
   return result
 }
 

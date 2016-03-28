@@ -151,15 +151,14 @@ describe("forEach", () => {
   })
 })
 
-// TODO: Filter with asynchronous condition
 describe("filter", () => {
   it("filter array by value", () => {
-    const arr = [7, -1, 6, -2, 8, 9, -4]
+    const arr = [ 7, -1, 6, -2, 8, 9, -4 ]
     const result = F.filter(value => value < 0, arr)
     assert.deepEqual(result, [-1, -2, -4])
   })
   it("filter array by key", () => {
-    const arr = [7, -1, 6, -2, 8, 9, -4]
+    const arr = [ 7, -1, 6, -2, 8, 9, -4 ]
     const result = F.filter((value, key) => key % 2, arr)
     assert.deepEqual(result, [-1, -2, 9])
   })
@@ -172,6 +171,21 @@ describe("filter", () => {
     const object = { one: "Uno", two: "Dos", three: "Tres" }
     const result = F.filter((value, key) => key.indexOf("o") >= 0, object)
     assert.deepEqual(result, { one: "Uno", two: "Dos" })
+  })
+  it("filter array asynchronously", () => {
+    const arr = [ 7, -1, 6, -2, 8, 9, -4 ]
+    F.filter(value => Promise.resolve(value < 0), arr)
+    .then(result => assert.deepEqual(result, [-1, -2, -4]))
+  })
+  it("filter array asynchronously, not all conditions asynchronous", () => {
+    const arr = [ 7, -1, 6, -2, 8, 9, -4 ]
+    F.filter(value => value < 0 || Promise.resolve(false), arr)
+    .then(result => assert.deepEqual(result, [-1, -2, -4]))
+  })
+  it("filter object asynchronously", () => {
+    const object = { one: "Uno", two: "Dos", three: "Tres" }
+    F.filter(value => Promise.resolve(value.indexOf("s") >= 0), object)
+    .then(result => assert.deepEqual(result, { two: "Dos", three: "Tres" }))
   })
 })
 
