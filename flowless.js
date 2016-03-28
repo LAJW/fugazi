@@ -10,6 +10,7 @@ const R = require("ramda")
 const id = x => x
 
 const isPromise = x => x && x instanceof Promise
+const isFunction = x => x && x instanceof Function
 
 // Convert to promise and resolve if needed
 const callThen = func => (...args) =>
@@ -17,6 +18,7 @@ const callThen = func => (...args) =>
   ? Promise.all(args).then(args => func(...args))
   : func(...args)
 
+const param = key => base => base ? base[key] : undefined
 const forEachEnumerable = (func, object) => {
   for (const key in object) {
     func(object[key], key, object)
@@ -173,7 +175,13 @@ const rangeDesc = function*(l, r) {
   }
 }
 
-module.exports = function F() { }
+module.exports = callThen(function(a1, a2, a3) {
+  if (arguments.length === 1 && isFunction(a1)) {
+    return F.curry(a1)
+  } else {
+    return F.compose(...R.map(R.ifElse(isFunction, id, param), arguments))
+  }
+})
 
 const F = module.exports
 
@@ -233,7 +241,11 @@ F.range = callThen((a1, a2) => {
   }
 })
 
+F.args = callThen(function() { return Array.prototype.slice.call(arguments) })
+
 // Utilities
+
+F.param = F.curry((key, base) => base ? base[key] : undefined)
 
 F.forEach = F.curry((func, object) => {
   if (object[Symbol.iterator]) {

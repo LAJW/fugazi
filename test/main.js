@@ -7,6 +7,19 @@ Object.defineProperty(Promise.prototype, 'end', {
   value(done) { this.then(() => done(), done) }
 })
 
+describe("F", () => {
+  it("single param => create function extracting param", () => {
+    const extract = F("param")
+    assert.strictEqual(extract({ param: "param's value" }),
+                       "param's value")
+  })
+  it("combine multiple params for deep crawling", () => {
+    const extract = F(0, "param")
+    assert.strictEqual(extract([{ param: "param's value" }]),
+                       "param's value")
+  })
+})
+
 describe("compose", () => {
 
   it("Simple function, pass in parameters", () => {
@@ -112,6 +125,26 @@ describe("range", () => {
       result.push(i)
     }
     assert.deepEqual(result, [10, 9, 8, 7, 6, 5])
+  })
+})
+
+describe("args", () => {
+  it("return passed in arguments", () => {
+    const args = F.args("one", "two", "three", "four")
+    assert.deepEqual(args, [ "one", "two", "three", "four" ])
+  })
+  it("return passed in arguments, wait for asynchronous ones", () => {
+    F.args("one", Promise.resolve("two"), "three", Promise.resolve("four"))
+    .then(args => assert.deepEqual(args, [ "one", "two", "three", "four" ]))
+  })
+})
+
+describe("param", () => {
+  it("get argument from object by key", () => { 
+    assert.strictEqual(F.param("one", { one: 1 }), 1)
+  })
+  it("get argument from object by numeric key", () => { 
+    assert.strictEqual(F.param(3, [ "one", "two", "three", "four" ]), "four")
   })
 })
 
@@ -307,3 +340,4 @@ describe("reduce", () => {
     .end(done)
   })
 })
+
