@@ -90,7 +90,7 @@ const mapEnumerable = (func, enumerable) => {
     forEachEnumerable((value, key) => {
       const element = func(value, key, enumerable)
       if (isPromise(element)) {
-        promises.push(element.then(value => { result[key] = value }))
+        promises.push(element.then(value => result[key] = value))
       } else {
         result[key] = element
       }
@@ -101,16 +101,14 @@ const mapEnumerable = (func, enumerable) => {
       if (typeof func === "function") {
         const element = func(enumerable[key], key, enumerable)
         if (isPromise(element)) {
-          promises.push(element.then(value => { result[key] = value }))
+          promises.push(element.then(value => result[key] = value))
         } else {
           result[key] = element
         }
+      } else if (isPromise(func)) {
+        promises.push(func.then(value => result[key] = value))
       } else {
-        if (isPromise(func)) {
-          promises.push(func.then(value => { result[key] = value }))
-        } else {
-          result[key] = func
-        }
+        result[key] = func
       }
     }, func)
   }
@@ -175,7 +173,7 @@ const rangeDesc = function*(l, r) {
   }
 }
 
-module.exports = callThen(function(a1, a2, a3) {
+const F = module.exports = callThen(function(a1) {
   if (arguments.length === 1 && isFunction(a1)) {
     return F.curry(a1)
   } else {
@@ -183,19 +181,18 @@ module.exports = callThen(function(a1, a2, a3) {
   }
 })
 
-const F = module.exports
-
 // Essentials
 
 F.compose = (...funcs) => (...args) => {
   funcs[0] = R.apply(funcs[0])
+  let value
   if (R.any(isPromise, args)) {
-    var value = Promise.all(args)
+    value = Promise.all(args)
   } else {
-    var value = args
+    value = args
   }
   let isError = false // is value an error
-  for (var i = 0, il = funcs.length; i < il; i++) {
+  for (let i = 0, il = funcs.length; i < il; i++) {
     const func = funcs[i]
     if (isPromise(value)) {
       if (func.catcher) {
@@ -241,7 +238,9 @@ F.range = callThen((a1, a2) => {
   }
 })
 
-F.args = callThen(function() { return Array.prototype.slice.call(arguments) })
+F.args = callThen(function() {
+  return Array.prototype.slice.call(arguments)
+})
 
 // Utilities
 
@@ -257,12 +256,10 @@ F.ifElse = F.curry((condFunc, trueFunc, falseFunc, value) => {
         return falseFunc(value)
       }
     })
+  } else if (condition) {
+    return trueFunc(value)
   } else {
-    if (condition) {
-      return trueFunc(value)
-    } else {
-      return falseFunc(value)
-    }
+    return falseFunc(value)
   }
 })
 
