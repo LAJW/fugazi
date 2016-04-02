@@ -400,7 +400,7 @@ describe('find', () => {
   it("find element in array with asynchronous callback by key", done => {
     const arr = [ 1, 2, 5, 7 ]
     F.find((value, key) => Promise.resolve(key > 2), arr)
-    .then(result => assert.strictEqual(result, 5))
+    .then(result => assert.strictEqual(result, 7))
     .end(done)
   })
   it("find element in object with asynchronous callback", done => {
