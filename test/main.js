@@ -428,4 +428,9 @@ describe("some", () => {
     const result = F.some(val => val < 0, arr)
     assert.strictEqual(result, true)
   })
+  it("some elements in array based on key", () => {
+    const arr = [ 1, 2, 3, 4, 5 ]
+    const result = F.some((val, key) => key === 4, arr)
+    assert.strictEqual(result, true)
+  })
 })
