@@ -409,5 +409,11 @@ describe('find', () => {
     .then(result => assert.strictEqual(result, 'tres'))
     .end(done)
   })
+  it("find element in object by key asynchronously", done => {
+    const object = { one : "uno", two : "dos", three : "tres", four : "quatro" }
+    F.find((val, key) => Promise.resolve(key.indexOf('t') >= 0), object)
+    .then(result => assert.strictEqual(result, 'dos'))
+    .end(done)
+  })
 })
 
