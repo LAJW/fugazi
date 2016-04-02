@@ -423,4 +423,9 @@ describe("some", () => {
     const result = F.some(val => val < 0, arr)
     assert.strictEqual(result, false)
   })
+  it("some elements in the array fulfill condition", () => {
+    const arr = [ 1, 2, 5, 7, -1, 5 ]
+    const result = F.some(val => val < 0, arr)
+    assert.strictEqual(result, true)
+  })
 })
