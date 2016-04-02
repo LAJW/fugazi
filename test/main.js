@@ -404,13 +404,13 @@ describe('find', () => {
     .end(done)
   })
   it("find element in object with asynchronous callback", done => {
-    const object = { one : "uno", two : "dos", three : "tres", four : "quatro" }
+    const object = { one : "uno", two : "dos", three : "tres" }
     F.find(val => Promise.resolve(val.indexOf('t') >= 0), object)
     .then(result => assert.strictEqual(result, 'tres'))
     .end(done)
   })
   it("find element in object by key asynchronously", done => {
-    const object = { one : "uno", two : "dos", three : "tres", four : "quatro" }
+    const object = { one : "uno", two : "dos", four : "quatro" }
     F.find((val, key) => Promise.resolve(key.indexOf('t') >= 0), object)
     .then(result => assert.strictEqual(result, 'dos'))
     .end(done)
