@@ -391,5 +391,11 @@ describe('find', () => {
     const result = F.find((val, key) => key.indexOf('t') >= 0, object)
     assert.strictEqual(result, 'dos')
   })
+  it("find element in array with asynchronous callback", done => {
+    const arr = [ 1, 2, 5, 7 ]
+    F.find(a => Promise.resolve(a > 2), arr)
+    .then(result => assert.strictEqual(result, 5))
+    .end(done)
+  })
 })
 
