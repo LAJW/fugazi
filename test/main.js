@@ -433,4 +433,10 @@ describe("some", () => {
     const result = F.some((val, key) => key === 4, arr)
     assert.strictEqual(result, true)
   })
+  it("some elements in array asynchronous asynchronously", done => {
+    const arr = [ 1, 2, 5, 7, -1, 10 ]
+    F.some(val => Promise.resolve(val < 0), arr)
+    .then(result => assert.strictEqual(result, true))
+    .end(done)
+  })
 })
