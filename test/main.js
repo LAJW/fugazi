@@ -370,3 +370,11 @@ describe("reduce", () => {
   })
 })
 
+describe('find', () => {
+  it('find element in an array', () => {
+    const arr = [ 1, 2, 5, 7 ]
+    const result = F.find(a => a > 2, arr)
+    assert.strictEqual(result, 5)
+  })
+})
+
