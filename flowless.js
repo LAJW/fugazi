@@ -246,12 +246,34 @@ const findEnumerable = (func, enumerable) => {
 
 const someIterable = (func, iterable) => {
   let i = 0
+  let promises = [ ]
   for (const value of iterable) {
     const condition = func(value, i, iterable)
-    if (condition) {
+    if (isPromise(condition)) {
+      promises.push(condition)
+    } else if (condition) {
       return true
+    } else {
+      i++
     }
-    i++
+  }
+  if (promises.length) {
+    return new Promise((resolve, reject) => {
+      let resolvedCount = 0
+      for (const promise of promises) {
+        promise.then(result => {
+          if (result) {
+            resolve(true)
+          } else {
+            resolvedCount++
+            if (resolvedCount === promises.length) {
+              resolve(false)
+            }
+          }
+        })
+        .catch(reject)
+      }
+    })
   }
   return false
 }
