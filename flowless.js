@@ -172,6 +172,16 @@ const findIterable = (func, iterable) => {
   return undefined
 }
 
+const findEnumerable = (func, enumerable) => {
+  for (const key in enumerable) {
+    const value = enumerable[key]
+    if (func(value, key)) {
+      return value
+    }
+  }
+  return undefined
+}
+
 const rangeAsc = function*(l, r) {
   for (; l <= r; l++) {
     yield l
