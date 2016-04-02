@@ -176,9 +176,12 @@ const findIterable = (func, iterable) => {
             if (condition) {
               return { value }
             }
+            i += 1
           })
         } else if (condition) {
           return { value }
+        } else {
+          i += 1
         }
       })
     } else {
@@ -188,12 +191,14 @@ const findIterable = (func, iterable) => {
           if (condition) {
             return { value }
           }
+          i += 1
         })
       } else if (condition) {
         return value
+      } else {
+        i += 1
       }
     }
-    i += 1
   }
   if (promise) {
     return promise.then(param("value"))
