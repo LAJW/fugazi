@@ -202,13 +202,41 @@ const findIterable = (func, iterable) => {
 }
 
 const findEnumerable = (func, enumerable) => {
-  for (const key in enumerable) {
-    const value = enumerable[key]
-    if (func(value, key)) {
-      return value
+  let promise
+  for (const i in enumerable) {
+    const value = enumerable[i]
+    if (promise) {
+      promise = promise.then(container => {
+        if (container) {
+          return container
+        }
+        const condition = func(value, i)
+        if (isPromise(condition)) {
+          return condition.then(condition => {
+            if (condition) {
+              return { value }
+            }
+          })
+        } else if (condition) {
+          return { value }
+        }
+      })
+    } else {
+      const condition = func(value, i)
+      if (isPromise(condition)) {
+        promise = condition.then(condition => {
+          if (condition) {
+            return { value }
+          }
+        })
+      } else if (condition) {
+        return value
+      }
     }
   }
-  return undefined
+  if (promise) {
+    return promise.then(param("value"))
+  }
 }
 
 const rangeAsc = function*(l, r) {
