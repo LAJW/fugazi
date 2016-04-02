@@ -122,17 +122,17 @@ const mapEnumerable = (func, enumerable) => {
 
 const mapIterable = (func, iterable) => {
   const result = [ ]
-  let asyncrhonous = false
+  let asynchronous = false
   if (typeof func === "function") {
     forEachIterable((value, key) => {
       const element = func(value, key, iterable)
       if (isPromise(element)) {
-        asyncrhonous = true
+        asynchronous = true
       }
       result.push(element)
     }, iterable)
   }
-  if (asyncrhonous) {
+  if (asynchronous) {
     return Promise.all(result)
   } else {
     return result
