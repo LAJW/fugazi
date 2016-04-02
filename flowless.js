@@ -161,6 +161,26 @@ const reduceIterable = (func, prev, iterable) => {
   return prev
 }
 
+// first promise that passes predicate will resolve
+const findPromise = (func, promises) => {
+  return new Promise((resolve, reject) => {
+    let resolvedCount = 0
+    for (const promise of promises) {
+      promise.then(value => {
+        if (func(value)) {
+          resolve(value)
+        } else {
+          resolvedCount++
+          if (resolvedCount === promises.length) {
+            resolve(undefined)
+          }
+        }
+      })
+      .catch(reject)
+    }
+  })
+}
+
 const findIterable = (func, iterable) => {
   let i = 0
   let promise
@@ -206,41 +226,22 @@ const findIterable = (func, iterable) => {
   return promise
 }
 
+// Not stable find. Promises will race to find first
 const findEnumerable = (func, enumerable) => {
-  let promise
+  const promises = [ ]
   for (const i in enumerable) {
-    const value = enumerable[i]
-    if (promise) {
-      promise = promise.then(container => {
-        if (container) {
-          return container
-        }
-        const condition = func(value, i)
-        if (isPromise(condition)) {
-          return condition.then(condition => {
-            if (condition) {
-              return { value }
-            }
-          })
-        } else if (condition) {
-          return { value }
-        }
-      })
-    } else {
-      const condition = func(value, i)
-      if (isPromise(condition)) {
-        promise = condition.then(condition => {
-          if (condition) {
-            return { value }
-          }
-        })
-      } else if (condition) {
-        return value
-      }
+    const value     = enumerable[i]
+    const condition = func(value, i, enumerable)
+    if (isPromise(condition)) {
+      promises.push(condition.then(condition => condition
+                                   ? { value }
+                                   : undefined))
+    } else if (condition) {
+      return value
     }
   }
-  if (promise) {
-    return promise.then(param("value"))
+  if (promises.length) {
+    return findPromise(id, promises).then(param("value"))
   }
 }
 
@@ -258,22 +259,7 @@ const someIterable = (func, iterable) => {
     }
   }
   if (promises.length) {
-    return new Promise((resolve, reject) => {
-      let resolvedCount = 0
-      for (const promise of promises) {
-        promise.then(result => {
-          if (result) {
-            resolve(true)
-          } else {
-            resolvedCount++
-            if (resolvedCount === promises.length) {
-              resolve(false)
-            }
-          }
-        })
-        .catch(reject)
-      }
-    })
+    return findPromise(id, promises).then(result => !!result)
   }
   return false
 }
