@@ -162,10 +162,12 @@ const reduceIterable = (func, prev, iterable) => {
 }
 
 const findIterable = (func, iterable) => {
+  let i = 0
   for (const value of iterable) {
-    if (func(value)) {
+    if (func(value, i)) {
       return value
     }
+    i += 1
   }
   return undefined
 }
