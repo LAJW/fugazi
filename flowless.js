@@ -163,13 +163,42 @@ const reduceIterable = (func, prev, iterable) => {
 
 const findIterable = (func, iterable) => {
   let i = 0
+  let promise
   for (const value of iterable) {
-    if (func(value, i)) {
-      return value
+    if (promise) {
+      promise = promise.then(container => {
+        if (container) {
+          return container
+        }
+        const condition = func(value, i)
+        if (isPromise(condition)) {
+          return condition.then(condition => {
+            if (condition) {
+              return { value }
+            }
+          })
+        } else if (condition) {
+          return { value }
+        }
+      })
+    } else {
+      const condition = func(value, i)
+      if (isPromise(condition)) {
+        promise = condition.then(condition => {
+          if (condition) {
+            return { value }
+          }
+        })
+      } else if (condition) {
+        return value
+      }
     }
     i += 1
   }
-  return undefined
+  if (promise) {
+    return promise.then(param("value"))
+  }
+  return promise
 }
 
 const findEnumerable = (func, enumerable) => {
