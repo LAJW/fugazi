@@ -244,6 +244,16 @@ const findEnumerable = (func, enumerable) => {
   }
 }
 
+const someIterable = (func, iterable) => {
+  for (const value of iterable) {
+    const condition = func(value)
+    if (condition) {
+      return true
+    }
+  }
+  return false
+}
+
 const rangeAsc = function*(l, r) {
   for (; l <= r; l++) {
     yield l
@@ -401,5 +411,13 @@ F.find = F.curry((func, object) => {
     return findIterable(func, object)
   } else {
     return findEnumerable(func, object)
+  }
+})
+
+F.some = F.curry((func, object) => {
+  if (object[Symbol.iterator]) {
+    return someIterable(func, object)
+  } else {
+    return someEnumerable(func, object)
   }
 })
