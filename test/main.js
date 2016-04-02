@@ -386,5 +386,10 @@ describe('find', () => {
     const result = F.find(val => val.indexOf('t') >= 0, object)
     assert.strictEqual(result, 'tres')
   })
+  it("find element in object by key", () => {
+    const object = { one : "uno", two : "dos", three : "tres", four : "quatro" }
+    const result = F.find((val, key) => key.indexOf('t') >= 0, object)
+    assert.strictEqual(result, 'dos')
+  })
 })
 
