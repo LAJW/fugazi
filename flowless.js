@@ -245,11 +245,13 @@ const findEnumerable = (func, enumerable) => {
 }
 
 const someIterable = (func, iterable) => {
+  let i = 0
   for (const value of iterable) {
-    const condition = func(value)
+    const condition = func(value, i, iterable)
     if (condition) {
       return true
     }
+    i++
   }
   return false
 }
