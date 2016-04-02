@@ -417,3 +417,10 @@ describe('find', () => {
   })
 })
 
+describe("some", () => {
+  it("no elements in the array", () => {
+    const arr = [ 1, 2, 5, 7 ]
+    const result = F.some(val => val < 0, arr)
+    assert.strictEqual(result, false)
+  })
+})
