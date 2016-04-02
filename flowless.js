@@ -161,6 +161,15 @@ const reduceIterable = (func, prev, iterable) => {
   return prev
 }
 
+const findIterable = (func, iterable) => {
+  for (const value of iterable) {
+    if (func(value)) {
+      return value
+    }
+  }
+  return undefined
+}
+
 const rangeAsc = function*(l, r) {
   for (; l <= r; l++) {
     yield l
@@ -312,3 +321,11 @@ F.reduce = F.curry((func, prev, object) => {
 F.reduceIterable = F.curry(reduceIterable)
 
 F.reduceEnumerable = F.curry(reduceEnumerable)
+
+F.find = F.curry((func, object) => {
+  if (object[Symbol.iterator]) {
+    return findIterable(func, object)
+  } else {
+    return findEnumerable(func, object)
+  }
+})
