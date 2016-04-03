@@ -473,3 +473,11 @@ describe("some", () => {
     .end(done)
   })
 })
+
+describe("every", () => {
+  it("every element in the array synchronously", () => {
+    const arr = [ 1, 2, 5, 7, -1, 10 ]
+    const result = F.every(val => !isNaN(val), arr)
+    assert.strictEqual(result, true)
+  })
+})
