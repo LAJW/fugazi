@@ -13,10 +13,12 @@ const isPromise = x => x && x instanceof Promise
 const isFunction = x => x && x instanceof Function
 
 // Convert to promise and resolve if needed
-const callThen = func => (...args) =>
-  R.any(isPromise, args)
+const callThen = func => function () {
+  const args = arguments
+  return R.any(isPromise, args)
   ? Promise.all(args).then(args => func(...args))
   : func(...args)
+}
 
 const param = key => base => base ? base[key] : undefined
 const forEachEnumerable = (func, object) => {
@@ -301,37 +303,43 @@ const F = module.exports = callThen(function(a1) {
 
 // Essentials
 
-F.compose = (...funcs) => (...args) => {
-  funcs[0] = R.apply(funcs[0])
-  let value
-  if (R.any(isPromise, args)) {
-    value = Promise.all(args)
-  } else {
-    value = args
-  }
-  let isError = false // is value an error
-  for (let i = 0, il = funcs.length; i < il; i++) {
-    const func = funcs[i]
-    if (isPromise(value)) {
-      if (func.catcher) {
-        value = value.catch(func)
-      } else {
-        value = value.then(func)
-      }
-    } else if (!isError ^ func.catcher) {
-      try {
-        value = func(value)
-        isError = false
-      } catch (error) {
-        value = error
-        isError = true
+F.compose = function() {
+  const funcs = arguments;
+  return function () {
+    let args
+    const f1 = funcs[0]
+    if (R.any(isPromise, arguments)) {
+      args = Promise.all(arguments)
+      funcs[0] = () => args.then(args => f1.apply(undefined, args))
+    } else {
+      args = arguments
+      funcs[0] = () => f1.apply(undefined, args)
+    }
+    let value
+    let isError = false // is value an error
+    for (let i = 0, il = funcs.length; i < il; i++) {
+      const func = funcs[i]
+      if (isPromise(value)) {
+        if (func.catcher) {
+          value = value.catch(func)
+        } else {
+          value = value.then(func)
+        }
+      } else if (!isError ^ func.catcher) {
+        try {
+          value = func(value)
+          isError = false
+        } catch (error) {
+          value = error
+          isError = true
+        }
       }
     }
-  }
-  if (isError) {
-    throw value
-  } else {
-    return value
+    if (isError) {
+      throw value
+    } else {
+      return value
+    }
   }
 }
 

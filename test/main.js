@@ -2,7 +2,7 @@
 
 /* global describe it */
 
-const F      = require("../bin/flowless")
+const F      = require("../flowless")
 const assert = require("assert")
 
 Object.defineProperty(Promise.prototype, 'end', {
