@@ -264,6 +264,22 @@ const someIterable = (func, iterable) => {
   return false
 }
 
+const someEnumerable = (func, enumerable) => {
+  let promises = [ ]
+  for (const i in enumerable) {
+    const condition = func(enumerable[i], i, enumerable)
+    if (isPromise(condition)) {
+      promises.push(condition)
+    } else if (condition) {
+      return true
+    }
+  }
+  if (promises.length) {
+    return findPromise(id, promises).then(result => !!result)
+  }
+  return false
+}
+
 const rangeAsc = function*(l, r) {
   for (; l <= r; l++) {
     yield l
