@@ -454,4 +454,10 @@ describe("some", () => {
     const result = F.some((val, key) => key.indexOf("e") >= 0, obj)
     assert.strictEqual(result, true)
   })
+  it("some elements in the object asynchronously", done => {
+    const obj = { one : 1, two : 2, three : 3 }
+    F.some(val => val >= 0, obj)
+    .then(result => assert.strictEqual(result, true))
+    .end(done)
+  })
 })
