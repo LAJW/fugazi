@@ -439,4 +439,9 @@ describe("some", () => {
     .then(result => assert.strictEqual(result, true))
     .end(done)
   })
+  it("no elements in the object", () => {
+    const obj = { one : 1, two : 2, three : 3 }
+    const result = F.some(val => val < 0, obj)
+    assert.strictEqual(result, false)
+  })
 })
