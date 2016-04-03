@@ -162,8 +162,8 @@ const reduceIterable = (func, prev, iterable) => {
 }
 
 // first promise that passes predicate will resolve
-const findPromise = (func, promises) => {
-  return new Promise((resolve, reject) => {
+const findPromise = (func, promises) =>
+  new Promise((resolve, reject) => {
     let resolvedCount = 0
     for (const promise of promises) {
       promise.then(value => {
@@ -179,7 +179,6 @@ const findPromise = (func, promises) => {
       .catch(reject)
     }
   })
-}
 
 const findIterable = (func, iterable) => {
   let i = 0
