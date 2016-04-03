@@ -456,14 +456,20 @@ describe("some", () => {
   })
   it("some elements in the object asynchronously", done => {
     const obj = { one : 1, two : 2, three : 3 }
-    F.some(val => val >= 0, obj)
+    F.some(val => Promise.resolve(val >= 0), obj)
     .then(result => assert.strictEqual(result, true))
     .end(done)
   })
   it("some elements in the object asynchronously, not found", done => {
     const obj = { one : 1, two : 2, three : 3 }
-    F.some(val => val < 0, obj)
+    F.some(val => Promise.resolve(val < 0), obj)
     .then(result => assert.strictEqual(result, false))
+    .end(done)
+  })
+  it("some elements in the object asynchronously by key", done => {
+    const obj = { one : 1, two : 2, three : 3 }
+    F.some((val, key) => Promise.resolve(key.indexOf("h") >= 0), obj)
+    .then(result => assert.strictEqual(result, true))
     .end(done)
   })
 })
