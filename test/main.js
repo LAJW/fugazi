@@ -460,4 +460,10 @@ describe("some", () => {
     .then(result => assert.strictEqual(result, true))
     .end(done)
   })
+  it("some elements in the object asynchronously, not found", done => {
+    const obj = { one : 1, two : 2, three : 3 }
+    F.some(val => val < 0, obj)
+    .then(result => assert.strictEqual(result, false))
+    .end(done)
+  })
 })
