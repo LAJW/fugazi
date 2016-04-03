@@ -446,3 +446,6 @@ F.some = F.curry((func, object) => {
     return someEnumerable(func, object)
   }
 })
+
+F.every = F.curry((func, object) =>
+  F(F.some(F(func, R.not)), R.not)(object))
