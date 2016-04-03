@@ -449,4 +449,9 @@ describe("some", () => {
     const result = F.some(val => val < 0, obj)
     assert.strictEqual(result, true)
   })
+  it("some elements in the object based on key", () => {
+    const obj = { one : 1, two : 2, three : 3 }
+    const result = F.some((val, key) => key.indexOf("e") >= 0, obj)
+    assert.strictEqual(result, true)
+  })
 })
