@@ -168,6 +168,18 @@ describe("ifElse", () => {
     .then(() => abs(-3).then(result => assert.strictEqual(result, 3)))
     .then(done)
   })
+  it("if then elseif then else then", () => {
+    const sgn = F.ifElse(a => a > 0,
+                         () => 1,
+
+                         a => a < 0,
+                         () => -1,
+
+                         () => 0)
+    assert.strictEqual(sgn(5), 1)
+    assert.strictEqual(sgn(-3), -1)
+    assert.strictEqual(sgn(NaN), 0)
+  })
 })
 
 describe("forEach", () => {
