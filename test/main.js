@@ -166,7 +166,7 @@ describe("ifElse", () => {
     const abs = F.ifElse(a => Promise.resolve(a >= 0), a => a, a => a * -1)
     abs(5).then(result => assert.strictEqual(result, 5))
     .then(() => abs(-3).then(result => assert.strictEqual(result, 3)))
-    .then(done)
+    .end(done)
   })
   it("if then elseif then else then", () => {
     const sgn = F.ifElse(a => a > 0,
