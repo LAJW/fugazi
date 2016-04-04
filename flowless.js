@@ -301,17 +301,13 @@ const F = module.exports = callThen(function(a1) {
 
 // Essentials
 
-F.compose = function() {
+F.compose = function(f1) {
   const funcs = arguments;
   return function () {
-    let args
-    const f1 = funcs[0]
     if (R.any(isPromise, arguments)) {
-      args = Promise.all(arguments)
-      funcs[0] = () => args.then(args => f1.apply(undefined, args))
+      funcs[0] = () => Promise.all(arguments).then(args => f1(...args))
     } else {
-      args = arguments
-      funcs[0] = () => f1.apply(undefined, args)
+      funcs[0] = () => f1(...arguments)
     }
     let value
     let isError = false // is value an error
