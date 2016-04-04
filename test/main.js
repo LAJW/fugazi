@@ -480,4 +480,9 @@ describe("every", () => {
     const result = F.every(val => !isNaN(val), arr)
     assert.strictEqual(result, true)
   })
+  it("Not all elements in the array sunchronously", () => {
+    const arr = [ 1, 2, 5, 7, -1, NaN, 10 ]
+    const result = F.every(val => !isNaN(val), arr)
+    assert.strictEqual(result, false)
+  })
 })
