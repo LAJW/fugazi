@@ -366,19 +366,42 @@ F.args = callThen(function() {
 
 F.param = F.curry((key, base) => base ? base[key] : undefined)
 
-F.ifElse = function () {
+F.ifElse = callThen(function () {
   const funcs = arguments
   return value => {
+    let promise
     for (let i = 0, il = funcs.length - 1; i < il; i += 2) {
       const pred = funcs[i]
       const then = funcs[i + 1]
-      if (pred(value)) {
-        return then(value)
+      if (promise) {
+        promise = promise.then(container => container
+                               ? container
+                               : pred(value))
+        .then(condition => condition ? { value : then(value) } : undefined)
+      } else {
+        const condition = pred(value)
+        if (isPromise(condition)) {
+          promise = condition
+          .then(condition => {
+            if (condition) {
+              return { value : then(value) }
+            }
+          })
+        } else if (condition) {
+          return then(value)
+        }
       }
     }
-    return funcs[funcs.length - 1](value)
+    if (promise) {
+      return promise
+      .then(container => container
+            ? container.value
+            : funcs[funcs.length - 1](value))
+    } else {
+      return funcs[funcs.length - 1](value)
+    }
   }
-}
+})
 
 F.forEach = F.curry((func, object) => {
   if (object[Symbol.iterator]) {
