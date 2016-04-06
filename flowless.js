@@ -1,4 +1,12 @@
 /******************************************************************************/
+/**
+ * @file :flowless.js
+ * @module flowless
+ * @desc Functional asynchronous library
+ * @author Lukasz A.J. Wrona (layv.net)
+ * @license MIT
+ */
+/******************************************************************************/
 
 "use strict"
 const R = require("ramda")

@@ -1,9 +1,18 @@
+/******************************************************************************/
+/**
+ * @file :test/main.js
+ * @desc Unit tests for flowless.js
+ * @author Lukasz A.J. Wrona (layv.net)
+ * @license MIT
+ */
+/******************************************************************************/
+
 "use strict"
-
-/* global describe it */
-
 const F      = require("../flowless")
 const assert = require("assert")
+
+/******************************************************************************/
+/* global describe it */
 
 Object.defineProperty(Promise.prototype, 'end', {
   value(done) {
