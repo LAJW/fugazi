@@ -6,7 +6,7 @@
   "scripts": {
     "mocha": "node_modules/.bin/mocha",
     "test": "npm run mocha -- test/* --recursive",
-    "coverage": "node_modules/.bin/istanbul npm test"
+    "coverage": "istanbul cover node_modules/.bin/_mocha -- test/*"
   },
   "repository": {
     "type": "git",
