@@ -131,15 +131,13 @@ const mapEnumerable = (func, enumerable) => {
 const mapIterable = (func, iterable) => {
   const result = [ ]
   let asynchronous = false
-  if (typeof func === "function") {
-    forEachIterable((value, key) => {
-      const element = func(value, key, iterable)
-      if (isPromise(element)) {
-        asynchronous = true
-      }
-      result.push(element)
-    }, iterable)
-  }
+  forEachIterable((value, key) => {
+    const element = func(value, key, iterable)
+    if (isPromise(element)) {
+      asynchronous = true
+    }
+    result.push(element)
+  }, iterable)
   if (asynchronous) {
     return Promise.all(result)
   } else {
