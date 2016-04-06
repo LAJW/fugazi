@@ -311,7 +311,7 @@ describe("map", () => {
     .end(done)
   })
   it("object + asynchronous callback, synchronize automatically", done => {
-    F.map(Promise.resolve(x => x * 2), { one : 1, two : 2, three : 3 })
+    F.map(x => Promise.resolve(x * 2), { one : 1, two : 2, three : 3 })
     .then(result => assert.deepEqual(result, { one : 2, two : 4, three : 6 }))
     .end(done)
   })
