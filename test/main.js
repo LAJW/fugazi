@@ -436,6 +436,31 @@ describe('find', () => {
     .then(result => assert.strictEqual(result, 'dos'))
     .end(done)
   })
+  it("find element in array sometimes asynchronously", done => {
+    const arr = [ 1, 2, 5, 7, 10, 11 ]
+    F.find((a, key) => key % 2
+                       ? a > 5
+                       : Promise.resolve(a > 5), arr)
+    .then(result => assert.strictEqual(result, 7))
+    .end(done)
+  })
+  it("find first element in array asynchronously", done => {
+    const object = [ 0 ]
+    F.find(val => Promise.resolve(val === 0), object)
+    .then(result => assert.strictEqual(result, 0))
+    .end(done)
+  })
+  it("element not found should result in undefined", () => {
+    const object = [ 1, 2, 3, 4 ]
+    const result = F.find(val => val === 0, object)
+    assert.strictEqual(result, undefined)
+  })
+  it("element not found async should resolve in undefined", done => {
+    const object = [ 1, 2, 3, 4 ]
+    F.find(val => Promise.resolve(val === 0), object)
+    .then(result => assert.strictEqual(result, undefined))
+    .end(done)
+  })
 })
 
 describe("some", () => {
