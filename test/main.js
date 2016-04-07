@@ -71,6 +71,19 @@ describe("compose", () => {
     .end(done)
   })
 
+  it("If composed function throws, throw", () => {
+    const object = { }
+    let result
+    try {
+      F.compose(() => {
+        throw object
+      })()
+    } catch (error) {
+      result = error
+    }
+    assert.strictEqual(result, object)
+  })
+
   it("Catcher function should catch synchronous errors.", () => {
     const object = { }
     const result = F.compose(result => {
