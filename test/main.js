@@ -224,6 +224,32 @@ describe("ifElse", () => {
     assert.strictEqual(sgn(-3), -1)
     assert.strictEqual(sgn(NaN), 0)
   })
+  it("if then elseif then else then asynchronous", done => {
+    const sgn = F.ifElse(a => Promise.resolve(a > 0),
+                         () => 1,
+
+                         a => Promise.resolve(a < 0),
+                         () => -1,
+
+                         () => 0)
+    sgn(5).then(result => assert.strictEqual(result, 1))
+    .then(() => sgn(-3)).then(result => assert.strictEqual(result, -1))
+    .then(() => sgn(NaN)).then(result => assert.strictEqual(result, 0))
+    .end(done)
+  })
+  it("if then elseif then else then asynchronous into synchronous", done => {
+    const sgn = F.ifElse(a => Promise.resolve(a > 0),
+                         () => 1,
+
+                         a => a < 0,
+                         () => -1,
+
+                         () => 0)
+    sgn(5).then(result => assert.strictEqual(result, 1))
+    .then(() => sgn(-3)).then(result => assert.strictEqual(result, -1))
+    .then(() => sgn(NaN)).then(result => assert.strictEqual(result, 0))
+    .end(done)
+  })
 })
 
 describe("forEach", () => {
