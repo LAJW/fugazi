@@ -21,16 +21,31 @@ Object.defineProperty(Promise.prototype, 'end', {
 })
 
 describe("F", () => {
+
+  it("enable currying when provided with a single function", () => {
+    const sum3 = F((a, b, c) => a + b + c)
+    assert.strictEqual(sum3(1)(2, 3), 6);
+    assert.strictEqual(sum3(1, 2, 3), 6);
+    assert.strictEqual(sum3(1)(2)(3), 6);
+  })
+
   it("single param => create function extracting param", () => {
     const extract = F("param")
     assert.strictEqual(extract({ param : "param's value" }),
                        "param's value")
   })
+
+  it("F param should return udefined if param isn't found", () => {
+    const extract = F("param")
+    assert.strictEqual(extract({ }), undefined)
+  })
+
   it("combine multiple params for deep crawling", () => {
     const extract = F(0, "param")
     assert.strictEqual(extract([ { param : "param's value" } ]),
                        "param's value")
   })
+
 })
 
 describe("compose", () => {
