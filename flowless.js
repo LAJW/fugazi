@@ -411,10 +411,14 @@ F.ifElse = callThen(function () {
     }
     if (promise) {
       return promise
-      .then(container => container
-            ? container.value
-            : funcs[funcs.length - 1](value))
-    } else {
+      .then(container => {
+        if (container) {
+          return container.value
+        } else if (funcs.length % 2) {
+          return funcs[funcs.length - 1](value)
+        }
+      })
+    } else if (funcs.length % 2) {
       return funcs[funcs.length - 1](value)
     }
   }
