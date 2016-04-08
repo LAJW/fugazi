@@ -415,6 +415,10 @@ describe("map", () => {
     }))
     .end(done)
   })
+  it("map over ES6 Set synchronously", () => {
+    const result = F.map(x => x * 2, new Set([ 1, 2, 3, 4, 5 ]))
+    assert.deepEqual(result, new Set([ 2, 4, 6, 8, 10 ]))
+  })
 })
 
 describe("reduce", () => {
