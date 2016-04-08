@@ -168,6 +168,30 @@ const mapSet = (func, iterable) => {
   }
 }
 
+const mapMap = (func, iterable) => {
+  const result = new Map()
+  let promise
+  forEachIterable(value => {
+    const element = func(value[0], value[1], iterable)
+    if (isPromise(element)) {
+      if (promise) {
+        promise = promise.then(element)
+      } else {
+        promise = element
+      }
+      promise.then(element => result.set(value[0], element))
+    } else {
+      result.set(element)
+    }
+  }, iterable)
+  if (promise) {
+    return promise.then(() => result)
+  } else {
+    return result
+  }
+}
+
+
 const reduceEnumerable = (func, prev, enumerable) => {
   forEachEnumerable((value, key) => {
     if (isPromise(prev)) {
@@ -476,6 +500,8 @@ F.filterIterable = F.curry(filterIterable)
 F.map = F.curry((func, object) => {
   if (object instanceof Set) {
     return mapSet(func, object)
+  } else if (object instanceof Map) {
+    return mapMap(func, object)
   } else if (object[Symbol.iterator]) {
     return mapIterable(func, object)
   } else {
@@ -488,6 +514,8 @@ F.mapEnumerable = F.curry(mapEnumerable)
 F.mapIterable = F.curry(mapIterable)
 
 F.mapSet = F.curry(mapSet)
+
+F.mapMap = F.curry(mapMap)
 
 F.reduce = F.curry((func, prev, object) => {
   if (object[Symbol.iterator]) {
