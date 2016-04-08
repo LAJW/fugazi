@@ -206,10 +206,23 @@ describe("ifElse", () => {
     assert.strictEqual(abs(5), 5)
     assert.strictEqual(abs(-3), 3)
   })
+  it("synchronous condition, else optional", () => {
+    const first = F.ifElse(a => a && a.length, a => a[0])
+    assert.strictEqual(first([ 5, 4, 3 ]), 5)
+    assert.strictEqual(first(undefined), undefined)
+  })
   it("asyncrhonous condition", done => {
     const abs = F.ifElse(a => Promise.resolve(a >= 0), a => a, a => a * -1)
     abs(5).then(result => assert.strictEqual(result, 5))
     .then(() => abs(-3).then(result => assert.strictEqual(result, 3)))
+    .end(done)
+  })
+  it("asynchronous condition, else optional", done => {
+    const first = F.ifElse(a => Promise.resolve(a && a.length), a => a[0])
+    first([ 5, 4, 3 ])
+    .then(result => assert.strictEqual(result, 5))
+    .then(() => first(undefined))
+    .then(result => assert.strictEqual(result, undefined))
     .end(done)
   })
   it("if then elseif then else then", () => {
