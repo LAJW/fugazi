@@ -90,6 +90,28 @@ const filterIterable = (func, iterable) => {
   return result
 }
 
+const filterSet = (func, set) => {
+  const result = new Set() // results resolved immediately
+  let promise
+  forEachIterable((value, key) => {
+    const condition = func(value, key, set)
+    if (isPromise(condition)) {
+      promise = condition.then(condition => {
+        if (condition) {
+          result.add(value)
+        }
+      })
+    } else if (condition) {
+      result.add(value)
+    }
+  }, set)
+  if (promise) {
+    return promise.then(() => result)
+  } else {
+    return result
+  }
+}
+
 const mapEnumerable = (func, enumerable) => {
   const result = { }
   const promises = [ ]
@@ -486,7 +508,9 @@ F.forEachEnumerable = F.curry(forEachEnumerable)
 F.forEachIterable = F.curry(forEachIterable)
 
 F.filter = F.curry((func, object) => {
-  if (object[Symbol.iterator]) {
+  if (object instanceof Set) {
+    return filterSet(func, object)
+  } else if (object[Symbol.iterator]) {
     return filterIterable(func, object)
   } else {
     return filterEnumerable(func, object)
