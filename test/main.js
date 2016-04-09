@@ -342,6 +342,12 @@ describe("filter", () => {
     const result = F.filter(value => value >= 0, set)
     assert.deepEqual(result, new Set([ 1, 2, 3 ]))
   })
+  it("filter ES6 set asynchronously", done => {
+    const set = new Set([ 1, -1, 2, -2, 3, -3 ])
+    F.filter(value => Promise.resolve(value >= 0), set)
+    .then(result => assert.deepEqual(result, new Set([ 1, 2, 3 ])))
+    .end(done)
+  })
 })
 
 describe("map", () => {
