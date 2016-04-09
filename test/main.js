@@ -337,6 +337,11 @@ describe("filter", () => {
     F.filter(value => Promise.resolve(value.indexOf("s") >= 0), object)
     .then(result => assert.deepEqual(result, { two : "Dos", three : "Tres" }))
   })
+  it("filter ES6 set synchronously", () => {
+    const set = new Set([ 1, -1, 2, -2, 3, -3 ])
+    const result = F.filter(value => value >= 0, set)
+    assert.deepEqual(result, new Set([ 1, 2, 3 ]))
+  })
 })
 
 describe("map", () => {
