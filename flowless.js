@@ -27,6 +27,54 @@ const callThen = func => function () {
 }
 
 const param = key => base => base ? base[key] : undefined
+
+const each = {
+  map : (cb, map) => {
+    for (const pair of map) {
+      cb(pair[1], pair[0], map)
+    }
+  },
+  iterable : (cb, set) => {
+    let i = 0
+    for (const value of set) {
+      cb(value, i, set)
+      i += 1
+    }
+  },
+  enumerable : (cb, enumerable) => {
+    for (const key in enumerable) {
+      cb(enumerable[key], key, enumerable)
+    }
+  }
+}
+
+const createFilter = (each, createResult, proc) => (pred, object) => {
+  let result = createResult()
+  let promise
+  each((val, key) => {
+    const condition = pred(val, key, object)
+    if (isPromise(condition)) {
+      if (!promise) {
+        promise = condition
+      } else {
+        promise = promise.then(condition)
+      }
+      promise.then(condition => {
+        if (condition) {
+          proc(result, val, key)
+        }
+      })
+    } else if (condition) {
+      proc(result, val, key)
+    }
+  }, object)
+  if (promise) {
+    return promise.then(() => result)
+  } else {
+    return result
+  }
+}
+
 const forEachEnumerable = (func, object) => {
   for (const key in object) {
     func(object[key], key, object)
@@ -41,27 +89,13 @@ const forEachIterable = (func, object) => {
   }
 }
 
-const filterEnumerable = (func, enumerable) => {
-  const result = { }
-  let   promise
-  forEachEnumerable((value, key) => {
-    const condition = func(value, key, enumerable)
-    if (isPromise(condition)) {
-      promise = condition.then(condition => {
-        if (condition) {
-          result[key] = value
-        }
-      })
-    } else if (condition) {
-      result[key] = value
-    }
-  }, enumerable)
-  if (promise) {
-    return promise.then(() => result)
-  } else {
-    return result
-  }
-}
+const filterEnumerable = createFilter(each.enumerable,
+                                      () => ({ }),
+                                      (result, val, key) => result[key] = val)
+
+const filterSet = createFilter(each.iterable,
+                               () => new Set(),
+                               (result, val) => result.add(val))
 
 const filterIterable = (func, iterable) => {
   const result     = [ ] // results resolved immediately
@@ -88,28 +122,6 @@ const filterIterable = (func, iterable) => {
     })
   }
   return result
-}
-
-const filterSet = (func, set) => {
-  const result = new Set() // results resolved immediately
-  let promise
-  forEachIterable((value, key) => {
-    const condition = func(value, key, set)
-    if (isPromise(condition)) {
-      promise = condition.then(condition => {
-        if (condition) {
-          result.add(value)
-        }
-      })
-    } else if (condition) {
-      result.add(value)
-    }
-  }, set)
-  if (promise) {
-    return promise.then(() => result)
-  } else {
-    return result
-  }
 }
 
 const mapEnumerable = (func, enumerable) => {
