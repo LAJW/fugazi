@@ -234,8 +234,8 @@ const map = {
 }
 
 
-const reduceEnumerable = (func, prev, enumerable) => {
-  each.enumerable((value, key) => {
+const createReduce = each => (func, prev, enumerable) => {
+  each((value, key) => {
     if (isPromise(prev)) {
       prev = prev.then(prev => func(prev, value, key, enumerable))
     } else {
@@ -245,16 +245,7 @@ const reduceEnumerable = (func, prev, enumerable) => {
   return prev
 }
 
-const reduceIterable = (func, prev, iterable) => {
-  each.iterable((value, key) => {
-    if (isPromise(prev)) {
-      prev = prev.then(prev => func(prev, value, key, iterable))
-    } else {
-      prev = func(prev, value, key, iterable)
-    }
-  }, iterable)
-  return prev
-}
+const reduce = map.enumerable(createReduce, each)
 
 // first promise that passes predicate will resolve
 const findPromise = (func, promises) =>
@@ -538,17 +529,14 @@ F.mapIterable = F.curry(map.iterable)
 F.mapSet = F.curry(map.set)
 F.mapMap = F.curry(map.map)
 
-F.reduce = F.curry((func, prev, object) => {
-  if (object[Symbol.iterator]) {
-    return reduceIterable(func, prev, object)
-  } else {
-    return reduceEnumerable(func, prev, object)
-  }
+F.reduce = F.curry(function(func, prev, object) {
+  return deref(reduce, object, arguments)
 })
 
-F.reduceIterable = F.curry(reduceIterable)
-
-F.reduceEnumerable = F.curry(reduceEnumerable)
+F.reduceIterable = F.curry(reduce.iterable)
+F.reduceEnumerable = F.curry(reduce.enumerable)
+F.reduceMap = F.curry(reduce.map)
+F.reduceSet = F.curry(reduce.set)
 
 F.find = F.curry((func, object) => {
   if (object[Symbol.iterator]) {
