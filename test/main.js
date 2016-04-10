@@ -738,3 +738,11 @@ describe("every", () => {
     .end(done)
   })
 })
+
+describe("match", () => {
+  it("match regex", () => {
+    const match = F.match(/.json$/)
+    assert.strictEqual(match("file.txt"), false)
+    assert.strictEqual(match("file.json"), true)
+  })
+})
