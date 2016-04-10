@@ -97,9 +97,13 @@ const filterEnumerable = createFilter(each.enumerable,
                                       () => ({ }),
                                       (result, val, key) => result[key] = val)
 
-const filterSet = createFilter(each.iterable,
+const filterSet = createFilter(each.set,
                                () => new Set(),
                                (result, val) => result.add(val))
+
+const filterMap = createFilter(each.map,
+                               () => new Map(),
+                               (result, val, key) => result.set(key, val))
 
 const filterIterable = (func, iterable) => {
   const result     = [ ] // results resolved immediately
@@ -524,7 +528,9 @@ F.forEachEnumerable = F.curry(forEachEnumerable)
 F.forEachIterable = F.curry(forEachIterable)
 
 F.filter = F.curry((func, object) => {
-  if (object instanceof Set) {
+  if (object instanceof Map) {
+    return filterMap(func, object)
+  } else if (object instanceof Set) {
     return filterSet(func, object)
   } else if (object[Symbol.iterator]) {
     return filterIterable(func, object)
