@@ -755,4 +755,10 @@ describe("match", () => {
     assert.strictEqual(match("one"), false)
     assert.strictEqual(match("two"), true)
   })
+  it("match against array of regexes", () => {
+    const match = F.match([ /\.json$/, /\.txt$/ ])
+    assert.strictEqual(match("file.txt"), true)
+    assert.strictEqual(match("file.json"), true)
+    assert.strictEqual(match("file.jpg"), false)
+  })
 })
