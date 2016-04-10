@@ -348,6 +348,43 @@ describe("filter", () => {
     .then(result => assert.deepEqual(result, new Set([ 1, 2, 3 ])))
     .end(done)
   })
+  it("filter ES6 map synchronously", () => {
+    const set = new Map([
+      [ "one", 1 ],
+      [ "minusOne", -1 ],
+      [ "two", 2 ],
+      [ "minusTwo", -2 ],
+      [ "three", 3 ],
+      [ "minusThree", -3 ]
+    ])
+    const result = F.filter(value => value >= 0, set)
+    assert.ok(result instanceof Map, "fiilter over Map should return Map")
+    assert.deepEqual(result, new Map([
+      [ "one", 1 ],
+      [ "two", 2 ],
+      [ "three", 3 ],
+    ]))
+  })
+  it("filter ES6 map asynchronously", done => {
+    const set = new Map([
+      [ "one", 1 ],
+      [ "minusOne", -1 ],
+      [ "two", 2 ],
+      [ "minusTwo", -2 ],
+      [ "three", 3 ],
+      [ "minusThree", -3 ]
+    ])
+    F.filter(value => Promise.resolve(value >= 0), set)
+    .then(result => {
+      assert.ok(result instanceof Map, "fiilter over Map should return Map")
+      assert.deepEqual(result, new Map([
+        [ "one", 1 ],
+        [ "two", 2 ],
+        [ "three", 3 ],
+      ]))
+    })
+    .end(done)
+  })
 })
 
 describe("map", () => {
