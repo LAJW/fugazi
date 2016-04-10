@@ -560,6 +560,9 @@ const match = pred => {
     return value => pred.test(value)
   } else if (typeof pred === "string") {
     return value => value === pred
+  } else if (pred instanceof Array) {
+    const possible = pred.map(match)
+    return value => possible.some(pred => pred(value))
   }
 }
 
