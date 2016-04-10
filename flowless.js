@@ -89,9 +89,6 @@ const createFilter = (each, createResult, proc) => (pred, object) => {
   }
 }
 
-const forEachEnumerable = each.enumerable
-const forEachIterable = each.iterable
-
 const filter = {
   set : createFilter(each.set,
                      () => new Set(),
@@ -109,7 +106,7 @@ const filter = {
     const result     = [ ] // results resolved immediately
     const rest       = [ ] // unresolved values
     const conditions = [ ] // asynchronous condition map for rest
-    forEachIterable((value, key) => {
+    each.iterable((value, key) => {
       const condition = func(value, key, iterable)
       if (conditions.length || isPromise(condition)) {
         conditions.push(condition)
@@ -139,7 +136,7 @@ const map = {
     const promises = [ ]
     if (typeof func === "function") {
       // regular mapping
-      forEachEnumerable((value, key) => {
+      each.enumerable((value, key) => {
         const element = func(value, key, enumerable)
         if (isPromise(element)) {
           promises.push(element.then(value => result[key] = value))
@@ -149,7 +146,7 @@ const map = {
       }, enumerable)
     } else {
       // func is object => map params
-      forEachEnumerable((func, key) => {
+      each.enumerable((func, key) => {
         if (typeof func === "function") {
           const element = func(enumerable[key], key, enumerable)
           if (isPromise(element)) {
@@ -175,7 +172,7 @@ const map = {
   iterable : (func, iterable) => {
     const result = [ ]
     let asynchronous = false
-    forEachIterable((value, key) => {
+    each.iterable((value, key) => {
       const element = func(value, key, iterable)
       if (isPromise(element)) {
         asynchronous = true
@@ -192,7 +189,7 @@ const map = {
   set : (func, iterable) => {
     const result = new Set()
     let promise
-    forEachIterable((value, key) => {
+    each.iterable((value, key) => {
       const element = func(value, key, iterable)
       if (isPromise(element)) {
         if (promise) {
@@ -215,7 +212,7 @@ const map = {
   map : (func, iterable) => {
     const result = new Map()
     let promise
-    forEachIterable(value => {
+    each.iterable(value => {
       const element = func(value[0], value[1], iterable)
       if (isPromise(element)) {
         if (promise) {
@@ -238,7 +235,7 @@ const map = {
 
 
 const reduceEnumerable = (func, prev, enumerable) => {
-  forEachEnumerable((value, key) => {
+  each.enumerable((value, key) => {
     if (isPromise(prev)) {
       prev = prev.then(prev => func(prev, value, key, enumerable))
     } else {
@@ -249,7 +246,7 @@ const reduceEnumerable = (func, prev, enumerable) => {
 }
 
 const reduceIterable = (func, prev, iterable) => {
-  forEachIterable((value, key) => {
+  each.iterable((value, key) => {
     if (isPromise(prev)) {
       prev = prev.then(prev => func(prev, value, key, iterable))
     } else {
@@ -521,10 +518,10 @@ F.forEach = F.curry(function (func, object) {
 })
 
 // iterate over each property in an enumerable object
-F.forEachEnumerable = F.curry(forEachEnumerable)
+F.forEachEnumerable = F.curry(each.enumerable)
 
 // iterate over each property in an iterable object
-F.forEachIterable = F.curry(forEachIterable)
+F.forEachIterable = F.curry(each.iterable)
 
 F.filter = F.curry(function (func, object) {
   return deref(filter, object, arguments)
