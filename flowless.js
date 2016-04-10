@@ -47,7 +47,6 @@ const each = {
     }
   }
 }
-
 each.set = each.iterable
 
 const deref = (alg, target, args) => {
@@ -248,23 +247,22 @@ const createReduce = each => (func, prev, enumerable) => {
 const reduce = map.enumerable(createReduce, each)
 
 // first promise that passes predicate will resolve
-const findPromise = (func, promises) =>
-  new Promise((resolve, reject) => {
-    let resolvedCount = 0
-    for (const promise of promises) {
-      promise.then(value => {
-        if (func(value)) {
-          resolve(value)
-        } else {
-          resolvedCount++
-          if (resolvedCount === promises.length) {
-            resolve(undefined)
-          }
+const findPromise = (func, promises) => new Promise((resolve, reject) => {
+  let resolvedCount = 0
+  for (const promise of promises) {
+    promise.then(value => {
+      if (func(value)) {
+        resolve(value)
+      } else {
+        resolvedCount++
+        if (resolvedCount === promises.length) {
+          resolve(undefined)
         }
-      })
-      .catch(reject)
-    }
-  })
+      }
+    })
+    .catch(reject)
+  }
+})
 
 const findIterable = (func, iterable) => {
   let i = 0
@@ -444,7 +442,7 @@ F.range = callThen((a1, a2) => {
 })
 
 F.args = callThen(function() {
-  return Array.prototype.slice.call(arguments)
+  return [ ...arguments ]
 })
 
 // Utilities
