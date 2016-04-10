@@ -48,6 +48,20 @@ const each = {
   }
 }
 
+each.set = each.iterable
+
+const deref = (alg, target, args) => {
+  if (target instanceof Set) {
+    return alg.set(...args)
+  } else if (target instanceof Map) {
+    return alg.map(...args)
+  } else if (target[Symbol.iterator]) {
+    return alg.iterable(...args)
+  } else {
+    return alg.enumerable(...args)
+  }
+}
+
 const createFilter = (each, createResult, proc) => (pred, object) => {
   let result = createResult()
   let promise
@@ -75,19 +89,9 @@ const createFilter = (each, createResult, proc) => (pred, object) => {
   }
 }
 
-const forEachEnumerable = (func, object) => {
-  for (const key in object) {
-    func(object[key], key, object)
-  }
-}
+const forEachEnumerable = each.enumerable
 
-const forEachIterable = (func, object) => {
-  let i = 0
-  for (const element of object) {
-    func(element, i, object)
-    i++
-  }
-}
+const forEachIterable = each.iterable
 
 const filterEnumerable = createFilter(each.enumerable,
                                       () => ({ }),
@@ -124,105 +128,109 @@ const filterIterable = (func, iterable) => {
   return result
 }
 
-const mapEnumerable = (func, enumerable) => {
-  const result = { }
-  const promises = [ ]
-  if (typeof func === "function") {
-    // regular mapping
-    forEachEnumerable((value, key) => {
-      const element = func(value, key, enumerable)
-      if (isPromise(element)) {
-        promises.push(element.then(value => result[key] = value))
-      } else {
-        result[key] = element
-      }
-    }, enumerable)
-  } else {
-    // func is object => map params
-    forEachEnumerable((func, key) => {
-      if (typeof func === "function") {
-        const element = func(enumerable[key], key, enumerable)
+const map = {
+
+  enumerable : (func, enumerable) => {
+    const result = { }
+    const promises = [ ]
+    if (typeof func === "function") {
+      // regular mapping
+      forEachEnumerable((value, key) => {
+        const element = func(value, key, enumerable)
         if (isPromise(element)) {
           promises.push(element.then(value => result[key] = value))
         } else {
           result[key] = element
         }
-      } else if (isPromise(func)) {
-        promises.push(func.then(value => result[key] = value))
-      } else {
-        result[key] = func
-      }
-    }, func)
-  }
-  if (promises.length) {
-    return Promise.all(promises)
-    .then(() => result)
-  } else {
-    return result
-  }
-}
-
-const mapIterable = (func, iterable) => {
-  const result = [ ]
-  let asynchronous = false
-  forEachIterable((value, key) => {
-    const element = func(value, key, iterable)
-    if (isPromise(element)) {
-      asynchronous = true
-    }
-    result.push(element)
-  }, iterable)
-  if (asynchronous) {
-    return Promise.all(result)
-  } else {
-    return result
-  }
-}
-
-const mapSet = (func, iterable) => {
-  const result = new Set()
-  let promise
-  forEachIterable((value, key) => {
-    const element = func(value, key, iterable)
-    if (isPromise(element)) {
-      if (promise) {
-        promise = promise.then(element)
-      } else {
-        promise = element
-      }
-      promise.then(element => result.add(element))
+      }, enumerable)
     } else {
-      result.add(element)
+      // func is object => map params
+      forEachEnumerable((func, key) => {
+        if (typeof func === "function") {
+          const element = func(enumerable[key], key, enumerable)
+          if (isPromise(element)) {
+            promises.push(element.then(value => result[key] = value))
+          } else {
+            result[key] = element
+          }
+        } else if (isPromise(func)) {
+          promises.push(func.then(value => result[key] = value))
+        } else {
+          result[key] = func
+        }
+      }, func)
     }
-  }, iterable)
-  if (promise) {
-    return promise.then(() => result)
-  } else {
-    return result
-  }
-}
-
-const mapMap = (func, iterable) => {
-  const result = new Map()
-  let promise
-  forEachIterable(value => {
-    const element = func(value[0], value[1], iterable)
-    if (isPromise(element)) {
-      if (promise) {
-        promise = promise.then(element)
-      } else {
-        promise = element
-      }
-      promise.then(element => result.set(value[0], element))
+    if (promises.length) {
+      return Promise.all(promises)
+      .then(() => result)
     } else {
-      result.set(element)
+      return result
     }
-  }, iterable)
-  if (promise) {
-    return promise.then(() => result)
-  } else {
-    return result
+  },
+
+  iterable : (func, iterable) => {
+    const result = [ ]
+    let asynchronous = false
+    forEachIterable((value, key) => {
+      const element = func(value, key, iterable)
+      if (isPromise(element)) {
+        asynchronous = true
+      }
+      result.push(element)
+    }, iterable)
+    if (asynchronous) {
+      return Promise.all(result)
+    } else {
+      return result
+    }
+  },
+
+  set : (func, iterable) => {
+    const result = new Set()
+    let promise
+    forEachIterable((value, key) => {
+      const element = func(value, key, iterable)
+      if (isPromise(element)) {
+        if (promise) {
+          promise = promise.then(element)
+        } else {
+          promise = element
+        }
+        promise.then(element => result.add(element))
+      } else {
+        result.add(element)
+      }
+    }, iterable)
+    if (promise) {
+      return promise.then(() => result)
+    } else {
+      return result
+    }
+  },
+
+  map : (func, iterable) => {
+    const result = new Map()
+    let promise
+    forEachIterable(value => {
+      const element = func(value[0], value[1], iterable)
+      if (isPromise(element)) {
+        if (promise) {
+          promise = promise.then(element)
+        } else {
+          promise = element
+        }
+        promise.then(element => result.set(value[0], element))
+      } else {
+        result.set(element)
+      }
+    }, iterable)
+    if (promise) {
+      return promise.then(() => result)
+    } else {
+      return result
+    }
   }
+
 }
 
 
@@ -505,12 +513,8 @@ F.ifElse = callThen(function () {
   }
 })
 
-F.forEach = F.curry((func, object) => {
-  if (object[Symbol.iterator]) {
-    forEachIterable(func, object)
-  } else {
-    forEachEnumerable(func, object)
-  }
+F.forEach = F.curry(function (func, object) {
+  deref(each, object, arguments)
 })
 
 // iterate over each property in an enumerable object
@@ -533,25 +537,13 @@ F.filterEnumerable = F.curry(filterEnumerable)
 
 F.filterIterable = F.curry(filterIterable)
 
-F.map = F.curry((func, object) => {
-  if (object instanceof Set) {
-    return mapSet(func, object)
-  } else if (object instanceof Map) {
-    return mapMap(func, object)
-  } else if (object[Symbol.iterator]) {
-    return mapIterable(func, object)
-  } else {
-    return mapEnumerable(func, object)
-  }
+F.map = F.curry(function (func, object) {
+  return deref(map, object, arguments)
 })
-
-F.mapEnumerable = F.curry(mapEnumerable)
-
-F.mapIterable = F.curry(mapIterable)
-
-F.mapSet = F.curry(mapSet)
-
-F.mapMap = F.curry(mapMap)
+F.mapEnumerable = F.curry(map.enumerable)
+F.mapIterable = F.curry(map.iterable)
+F.mapSet = F.curry(map.set)
+F.mapMap = F.curry(map.map)
 
 F.reduce = F.curry((func, prev, object) => {
   if (object[Symbol.iterator]) {
