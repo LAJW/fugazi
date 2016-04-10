@@ -517,11 +517,10 @@ F.forEach = F.curry(function (func, object) {
   deref(each, object, arguments)
 })
 
-// iterate over each property in an enumerable object
 F.forEachEnumerable = F.curry(each.enumerable)
-
-// iterate over each property in an iterable object
 F.forEachIterable = F.curry(each.iterable)
+F.forEachSet = F.curry(each.set)
+F.forEachMap = F.curry(each.map)
 
 F.filter = F.curry(function (func, object) {
   return deref(filter, object, arguments)
