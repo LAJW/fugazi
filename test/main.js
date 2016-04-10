@@ -745,4 +745,9 @@ describe("match", () => {
     assert.strictEqual(match("file.txt"), false)
     assert.strictEqual(match("file.json"), true)
   })
+  it("match string", () => {
+    const match = F.match("two")
+    assert.strictEqual(match("one"), false)
+    assert.strictEqual(match("two"), true)
+  })
 })
