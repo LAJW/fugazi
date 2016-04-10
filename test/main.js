@@ -750,4 +750,9 @@ describe("match", () => {
     assert.strictEqual(match("one"), false)
     assert.strictEqual(match("two"), true)
   })
+  it("match against array of strings", () => {
+    const match = F.match([ "three", "two" ])
+    assert.strictEqual(match("one"), false)
+    assert.strictEqual(match("two"), true)
+  })
 })
