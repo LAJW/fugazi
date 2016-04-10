@@ -90,50 +90,50 @@ const createFilter = (each, createResult, proc) => (pred, object) => {
 }
 
 const forEachEnumerable = each.enumerable
-
 const forEachIterable = each.iterable
 
-const filterEnumerable = createFilter(each.enumerable,
-                                      () => ({ }),
-                                      (result, val, key) => result[key] = val)
+const filter = {
+  set : createFilter(each.set,
+                     () => new Set(),
+                     (result, val) => result.add(val)),
 
-const filterSet = createFilter(each.set,
-                               () => new Set(),
-                               (result, val) => result.add(val))
+  map : createFilter(each.map,
+                     () => new Map(),
+                     (result, val, key) => result.set(key, val)),
 
-const filterMap = createFilter(each.map,
-                               () => new Map(),
-                               (result, val, key) => result.set(key, val))
+  enumerable : createFilter(each.enumerable,
+                            () => ({ }),
+                            (result, val, key) => result[key] = val),
 
-const filterIterable = (func, iterable) => {
-  const result     = [ ] // results resolved immediately
-  const rest       = [ ] // unresolved values
-  const conditions = [ ] // asynchronous condition map for rest
-  forEachIterable((value, key) => {
-    const condition = func(value, key, iterable)
-    if (conditions.length || isPromise(condition)) {
-      conditions.push(condition)
-      rest.push(value)
-    } else if (condition) {
-      result.push(value)
-    }
-  }, iterable)
-  if (conditions.length) {
-    return Promise.all(conditions)
-    .then(conditions => {
-      conditions.forEach((condition, key) => {
-        if (condition) {
-          result.push(rest[key])
-        }
+  iterable : (func, iterable) => {
+    const result     = [ ] // results resolved immediately
+    const rest       = [ ] // unresolved values
+    const conditions = [ ] // asynchronous condition map for rest
+    forEachIterable((value, key) => {
+      const condition = func(value, key, iterable)
+      if (conditions.length || isPromise(condition)) {
+        conditions.push(condition)
+        rest.push(value)
+      } else if (condition) {
+        result.push(value)
+      }
+    }, iterable)
+    if (conditions.length) {
+      return Promise.all(conditions)
+      .then(conditions => {
+        conditions.forEach((condition, key) => {
+          if (condition) {
+            result.push(rest[key])
+          }
+        })
+        return result
       })
-      return result
-    })
+    }
+    return result
   }
-  return result
 }
 
 const map = {
-
   enumerable : (func, enumerable) => {
     const result = { }
     const promises = [ ]
@@ -234,7 +234,6 @@ const map = {
       return result
     }
   }
-
 }
 
 
@@ -527,21 +526,13 @@ F.forEachEnumerable = F.curry(forEachEnumerable)
 // iterate over each property in an iterable object
 F.forEachIterable = F.curry(forEachIterable)
 
-F.filter = F.curry((func, object) => {
-  if (object instanceof Map) {
-    return filterMap(func, object)
-  } else if (object instanceof Set) {
-    return filterSet(func, object)
-  } else if (object[Symbol.iterator]) {
-    return filterIterable(func, object)
-  } else {
-    return filterEnumerable(func, object)
-  }
+F.filter = F.curry(function (func, object) {
+  return deref(filter, object, arguments)
 })
-
-F.filterEnumerable = F.curry(filterEnumerable)
-
-F.filterIterable = F.curry(filterIterable)
+F.filterEnumerable = F.curry(filter.enumerable)
+F.filterIterable = F.curry(filter.iterable)
+F.filterSet = F.curry(filter.set)
+F.filterMap = F.curry(filter.map)
 
 F.map = F.curry(function (func, object) {
   return deref(map, object, arguments)
