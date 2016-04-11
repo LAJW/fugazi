@@ -761,4 +761,11 @@ describe("match", () => {
     assert.strictEqual(match("file.json"), true)
     assert.strictEqual(match("file.jpg"), false)
   })
+  it("match against a custom function", () => {
+    const match = F.match(value => value > 0 && value < 100)
+    assert.strictEqual(match("file.txt"), false)
+    assert.strictEqual(match(-0.0001), false)
+    assert.strictEqual(match(Infinity), false)
+    assert.strictEqual(match(50), true)
+  })
 })
