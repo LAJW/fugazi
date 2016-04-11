@@ -786,4 +786,21 @@ describe("match", () => {
     assert.strictEqual(match(0), true, "zero is a number")
     assert.strictEqual(match([ ]), false, "empty array is not a number")
   })
+  it("match against object of properties", () => {
+    const match = F.match({
+      id    : Number,
+      email : String,
+      dank  : [ true, false ],
+    })
+    assert.strictEqual(match({
+      id    : 3,
+      email : "admin@example.com",
+      dank  : true,
+    }), true)
+    assert.strictEqual(match({
+      id    : 5,
+      email : "admin@example.com",
+      dank  : "cat",
+    }), false)
+  })
 })
