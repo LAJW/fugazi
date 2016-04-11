@@ -571,6 +571,21 @@ const match = pred => {
   } else if (pred instanceof Array) {
     const possible = pred.map(match)
     return value => possible.some(pred => pred(value))
+  } else if (pred instanceof Object) {
+    const possible = map.enumerable(match, pred)
+    const keys     = Object.keys(possible)
+    return value => {
+      if (!value || !(value instanceof Object)
+          || Object.keys(value).length !== keys.length) {
+        return false
+      }
+      for (const key of keys) {
+        if (!possible[key](value[key])) {
+          return false
+        }
+      }
+      return true
+    }
   } else {
     return value => value === pred
   }
