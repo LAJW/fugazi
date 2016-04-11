@@ -803,4 +803,11 @@ describe("match", () => {
       dank  : "cat",
     }), false)
   })
+  it("match against boolean constructor", () => {
+    const match = F.match(Boolean)
+    assert.strictEqual(match("string"), false, "string is not a boolean")
+    assert.strictEqual(match(false), true, "false is a aboolean")
+    assert.strictEqual(match(true), true, "true is a boolean")
+    assert.strictEqual(match(1), false, "1 is not a boolean")
+  })
 })
