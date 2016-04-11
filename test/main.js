@@ -792,6 +792,14 @@ describe("match", () => {
       email : String,
       dank  : [ true, false ],
     })
+    assert.strictEqual(match(undefined), false, "undefined is not an object")
+    assert.strictEqual(match({ }), false, "Missing properties")
+    assert.strictEqual(match({
+      id    : 3,
+      email : "admin@example.com",
+      dank  : true,
+      extra : 'whatever'
+    }), false, "Extra properties")
     assert.strictEqual(match({
       id    : 3,
       email : "admin@example.com",
