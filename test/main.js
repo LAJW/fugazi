@@ -768,4 +768,10 @@ describe("match", () => {
     assert.strictEqual(match(Infinity), false)
     assert.strictEqual(match(50), true)
   })
+  it("match against a constructor of the object", () => {
+    const match = F.match(Array)
+    assert.strictEqual(match(Set), false)
+    assert.strictEqual(match({ length : 0 }), false)
+    assert.strictEqual(match([ Infinity ]), true)
+  })
 })
