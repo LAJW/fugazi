@@ -557,18 +557,20 @@ F.every = F.curry((func, object) =>
 
 const match = pred => {
   if (pred instanceof Function) {
-    if (pred.prototype === id.prototype) {
+    if (pred === String) {
+      return value => typeof value === "string"
+    } else if (pred.prototype === id.prototype) {
       return value => pred(value)
     } else {
       return value => value && value instanceof pred
     }
   } else if (pred instanceof RegExp) {
     return value => pred.test(value)
-  } else if (typeof pred === "string") {
-    return value => value === pred
   } else if (pred instanceof Array) {
     const possible = pred.map(match)
     return value => possible.some(pred => pred(value))
+  } else {
+    return value => value === pred
   }
 }
 
