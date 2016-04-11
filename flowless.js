@@ -557,7 +557,9 @@ F.every = F.curry((func, object) =>
 
 const match = pred => {
   if (pred instanceof Function) {
-    if (pred === String) {
+    if (pred === Number) {
+      return value => typeof value === "number"
+    } else if (pred === String) {
       return value => typeof value === "string"
     } else if (pred.prototype === id.prototype) {
       return value => pred(value)
