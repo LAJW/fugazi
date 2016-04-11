@@ -774,4 +774,10 @@ describe("match", () => {
     assert.strictEqual(match({ length : 0 }), false)
     assert.strictEqual(match([ Infinity ]), true)
   })
+  it("match against String constructor", () => {
+    const match = F.match(String)
+    assert.strictEqual(match(new Set()), false)
+    assert.strictEqual(match("random string"), true)
+    assert.strictEqual(match(NaN), false)
+  })
 })
