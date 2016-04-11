@@ -776,8 +776,8 @@ describe("match", () => {
   })
   it("match against String constructor", () => {
     const match = F.match(String)
-    assert.strictEqual(match(new Set()), false)
-    assert.strictEqual(match("random string"), true)
-    assert.strictEqual(match(NaN), false)
+    assert.strictEqual(match(new Set()), false, "set is not a string")
+    assert.strictEqual(match("random string"), true, "string is a string")
+    assert.strictEqual(match(NaN), false, "NaN is not a string")
   })
 })
