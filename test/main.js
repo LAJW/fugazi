@@ -780,4 +780,10 @@ describe("match", () => {
     assert.strictEqual(match("random string"), true, "string is a string")
     assert.strictEqual(match(NaN), false, "NaN is not a string")
   })
+  it("match against Number constructor", () => {
+    const match = F.match(Number)
+    assert.strictEqual(match("string"), false, "string is not a number")
+    assert.strictEqual(match(0), true, "zero is a number")
+    assert.strictEqual(match([ ]), false, "empty array is not a number")
+  })
 })
