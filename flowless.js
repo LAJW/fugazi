@@ -556,7 +556,9 @@ F.every = F.curry((func, object) =>
   F(F.some(F(func, R.not)), R.not)(object))
 
 const match = pred => {
-  if (pred instanceof RegExp) {
+  if (pred instanceof Function) {
+    return value => pred(value)
+  } else if (pred instanceof RegExp) {
     return value => pred.test(value)
   } else if (typeof pred === "string") {
     return value => value === pred
