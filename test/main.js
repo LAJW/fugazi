@@ -818,4 +818,13 @@ describe("match", () => {
     assert.strictEqual(match(true), true, "true is a boolean")
     assert.strictEqual(match(1), false, "1 is not a boolean")
   })
+  it(`match against asynchronous predicate function should return promise
+      resolving to the result`, done => {
+    const match = F.match(x => Promise.resolve(x > 0))
+    match(5)
+    .then(result => assert.strictEqual(result, true))
+    .then(() => match(-1))
+    .then(result => assert.strictEqual(result, false))
+    .end(done)
+  })
 })
