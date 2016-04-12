@@ -581,12 +581,7 @@ const match = pred => {
           || Object.keys(value).length !== keys.length) {
         return false
       }
-      for (const key of keys) {
-        if (!possible[key](value[key])) {
-          return false
-        }
-      }
-      return true
+      return F.every((possible, key) => possible(value[key]), possible)
     }
   } else {
     return value => value === pred
