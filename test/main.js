@@ -839,4 +839,22 @@ describe("match", () => {
     .then(result => assert.strictEqual(result, false, "object is not a nubmer"))
     .end(done)
   })
+  it(`match against structure of asynchronous predicates`, done => {
+    const match = F.match({
+      id   : x => Promise.resolve(typeof x === "number"),
+      name : x => Promise.resolve(typeof x === "string"),
+    })
+    match({
+      id   : 0,
+      name : "",
+    })
+    .then(result => assert.strictEqual(result, true,
+                                       "id is a number and name is a string"))
+    .then(() => match({
+      id   : { },
+      name : "",
+    }))
+    .then(result => assert.strictEqual(result, false, "id is not a number"))
+    .end(done)
+  })
 })
