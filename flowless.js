@@ -572,7 +572,7 @@ const match = pred => {
     return value => pred.test(value)
   } else if (pred instanceof Array) {
     const possible = pred.map(match)
-    return value => possible.some(pred => pred(value))
+    return value => F.some(pred => pred(value), possible)
   } else if (pred instanceof Object) {
     const possible = map.enumerable(match, pred)
     const keys     = Object.keys(possible)
