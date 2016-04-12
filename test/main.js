@@ -827,4 +827,16 @@ describe("match", () => {
     .then(result => assert.strictEqual(result, false))
     .end(done)
   })
+  it(`match against multiple asynchronous predicate functions should return
+      promise resolving to the final result`, done => {
+    const match = F.match([ x => Promise.resolve(typeof x === "string"),
+                            x => Promise.resolve(typeof x === "number") ])
+    match(0)
+    .then(result => assert.strictEqual(result, true, "zero is a number"))
+    .then(() => match(""))
+    .then(result => assert.strictEqual(result, true, "empty string is a string"))
+    .then(() => match({ }))
+    .then(result => assert.strictEqual(result, false, "object is not a nubmer"))
+    .end(done)
+  })
 })
