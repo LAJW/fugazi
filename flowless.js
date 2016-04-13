@@ -441,9 +441,24 @@ F.compose = function() {
   }
 }
 
-F.catch = func => {
-  func.catcher = true
-  return func
+/**
+ * Create exception handler, use only in conjunction with F.compose. Does also
+ * catch promise rejections
+ * @function catch
+ * @static
+ * @param {Function} handler Exception handler. Accepts only one argument -
+ * thrown error
+ * @return {Function} Function that will handle exceptions thrown inside
+ * composed function
+ * @example
+ * const param = F(object => object.param,  // throws if object is undefined
+ *                 F.catch(() => "param not found"))
+ * param({ param : 1 }) // returns 1
+ * param(undefined)     // returns "param not found"
+ */
+F.catch = handler => {
+  handler.catcher = true
+  return handler
 }
 
 F.curryN = (length, func) => R.curryN(length, callThen(func))
