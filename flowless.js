@@ -1,6 +1,5 @@
 /******************************************************************************/
 /**
- * @file :flowless.js
  * @module flowless
  * @desc Functional asynchronous library
  * @author Lukasz A.J. Wrona (layv.net)
@@ -384,8 +383,30 @@ const F = module.exports = callThen(function(a1) {
 
 // Essentials
 
-F.compose = function(f1) {
+/**
+ * Performs left-to-right function composition. The leftmost function may accept
+ * multiple arguments, other ones must be unary. If one of functions resolves
+ * value through promise, wait for it and apply next function on the result.
+ * @function compose
+ * @static
+ * @param {Function} function... Functions to concatenate
+ * @return {Function} New composed function
+ * @example
+ * const fSync = F.compose(a => a * 2,
+ *                         a => Math.pow(a, 2),
+ *                         a => a + 1)
+ * fSync(1) // returns 5
+ * fSync(2) // returns 17
+ *
+ * const fAsync = F.compose(a => Promise.resolve(a * 2),
+ *                          a => Math.pow(a, 2),
+ *                          a => Promise.resolve(a + 1))
+ * fAsync(1).then(result => {  }) // result is 5
+ * fAsync(2).then(result => {  }) // result is 17
+ */
+F.compose = function() {
   const funcs = arguments;
+  const f1 = funcs[0]
   return function () {
     if (R.any(isPromise, arguments)) {
       funcs[0] = () => Promise.all(arguments).then(args => f1(...args))
