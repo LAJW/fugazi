@@ -483,6 +483,28 @@ F.args = callThen(function() {
 
 // Utilities
 
+/**
+ * <pre>key -> base -> value</pre>
+ * Safely extract property from base object. If object is null or undefined,
+ * will return undefined.
+ * @function param
+ * @static
+ * @param {Mixed} key Name of the property.
+ * @param {Mixed} base Object from which the property should be extracted
+ * @return {Mixed} Value of the property
+ * @example
+ * const getNestedProperty = F(F.param("nested"), F.param("property"))
+ * const object = {
+ *   nested : {
+ *     property : "Nested properties are terrible"
+ *   }
+ * }
+ * getNestedProperty(object) // returns "Nested properties are terrible"
+ * getNestedProperty({ })    // returns undefined
+ *
+ * // You may also construct it this way
+ * const getNestedProperty = F("nested", "property")
+ */
 F.param = F.curry((key, base) => base ? base[key] : undefined)
 
 F.ifElse = callThen(function () {
