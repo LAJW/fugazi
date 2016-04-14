@@ -591,6 +591,34 @@ F.ifElse = callThen(function () {
   }
 })
 
+/**
+ * <pre>(value -> key -> object -> undefined) -> object -> undefined</pre>
+ * Iterate over Array, enumerable, Iterable, Map, Set or function generator.
+ * <br>
+ * If object is iterable (array, arguments, generator, it'll use for...of loop
+ * If key is missing (map, generator), key will be a count of iterations. In
+ * case of map, it'll use pair[0] as key and pair[1] as value
+ * <br>
+ * If object is enumerable (Object literal) it'll use for...in loop.
+ * If you want to specify iteration mechanism on your own, use one of the
+ * following functions:
+ * <ul>
+ * <li>F.forEachIterable
+ * <li>F.forEachEnumerable
+ * <li>F.forEachMap
+ * <li>F.forEachSet
+ * </ul>
+ * @function forEach
+ * @static
+ * @param {Function} callback Callback function. Accepts 3 arguments - value,
+ * key and iterated object
+ * @param {Mixed} object Object iterated over
+ * @example
+ * const eachLog = F.forEach((value, key) => console.log(value, key))
+ * eachLog(new Map([ 'key1', 'value1' ], [ 'key2', 'value2' ]) // prints:
+ *                                                             // key1 value1
+ *                                                             // key2 value2
+ */
 F.forEach = F.curry(function (func, object) {
   deref(each, object, arguments)
 })
