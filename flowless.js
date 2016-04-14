@@ -507,6 +507,37 @@ F.args = callThen(function() {
  */
 F.param = F.curry((key, base) => base ? base[key] : undefined)
 
+/**
+ * Create if ... then chain. Function requires at least 2 arguments. Predicates
+ * may resolve through promise. If that's the case function will wait for
+ * predicate to resolve and return eventual result in promise.
+ *
+ * Order of functions is always as follows:
+ * <pre>ifFunc, thenFunc [, elseIfFunc, thenFunc... [, elseFunc]</pre>
+ * @function ifElse
+ * @static
+ * @param {Function} function... Function only accepts functions
+ * @return {Mixed} function returns result of thenFunc or undefined if elseFunc
+ * is not specified. If one of predicates resolves through a promise, function
+ * will return result in a promise.
+ * @example
+ * const sgn = F.ifElse(x => x > 0, // if
+ *                      () => 1,    // then
+ *
+ *                      x => x < 0, // else if
+ *                      () => -1,   // then
+ *
+ *                      () => 0)    // else
+ *
+ * sgn(5)       // returns 1
+ * sgn(-0.5)    // returns -1
+ * sgn("Hello") // returns 0
+ * // condition resolving through promise
+ * const abs = F.ifElse(x => Promise.resolve(x > 0), // if
+ *                      x => x,                      // then
+ *                      x => x * -1)                 // else
+ * abs(-3) // Promise resolving to 3
+ */
 F.ifElse = callThen(function () {
   const funcs = arguments
   return value => {
