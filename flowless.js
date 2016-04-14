@@ -596,34 +596,34 @@ F.forEach = F.curry(function (func, object) {
 })
 
 F.forEachEnumerable = F.curry(each.enumerable)
-F.forEachIterable = F.curry(each.iterable)
-F.forEachSet = F.curry(each.set)
-F.forEachMap = F.curry(each.map)
+F.forEachIterable   = F.curry(each.iterable)
+F.forEachSet        = F.curry(each.set)
+F.forEachMap        = F.curry(each.map)
 
 F.filter = F.curry(function (func, object) {
   return deref(filter, object, arguments)
 })
 F.filterEnumerable = F.curry(filter.enumerable)
-F.filterIterable = F.curry(filter.iterable)
-F.filterSet = F.curry(filter.set)
-F.filterMap = F.curry(filter.map)
+F.filterIterable   = F.curry(filter.iterable)
+F.filterSet        = F.curry(filter.set)
+F.filterMap        = F.curry(filter.map)
 
 F.map = F.curry(function (func, object) {
   return deref(map, object, arguments)
 })
 F.mapEnumerable = F.curry(map.enumerable)
-F.mapIterable = F.curry(map.iterable)
-F.mapSet = F.curry(map.set)
-F.mapMap = F.curry(map.map)
+F.mapIterable   = F.curry(map.iterable)
+F.mapSet        = F.curry(map.set)
+F.mapMap        = F.curry(map.map)
 
 F.reduce = F.curry(function(func, prev, object) {
   return deref(reduce, object, arguments)
 })
 
-F.reduceIterable = F.curry(reduce.iterable)
+F.reduceIterable   = F.curry(reduce.iterable)
 F.reduceEnumerable = F.curry(reduce.enumerable)
-F.reduceMap = F.curry(reduce.map)
-F.reduceSet = F.curry(reduce.set)
+F.reduceMap        = F.curry(reduce.map)
+F.reduceSet        = F.curry(reduce.set)
 
 F.find = F.curry((func, object) => {
   if (object[Symbol.iterator]) {
