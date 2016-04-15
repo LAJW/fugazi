@@ -652,6 +652,16 @@ describe('find', () => {
     const result = F.find((val, key) => key.indexOf('t') >= 0, map)
     assert.strictEqual(result, 'dos')
   })
+  it("find element in map with asynchronous callback", done => {
+    const map = new Map([
+      [ "one", "uno" ],
+      [ "two", "dos" ],
+      [ "three", "tres" ],
+    ])
+    F.find(val => Promise.resolve(val.indexOf('t') >= 0), map)
+    .then(result => assert.strictEqual(result, 'tres'))
+    .end(done)
+  })
 })
 
 describe("some", () => {
