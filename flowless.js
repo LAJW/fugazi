@@ -673,7 +673,9 @@ F.reduceMap        = F.curry(reduce.map)
 F.reduceSet        = F.curry(reduce.set)
 
 F.find = F.curry((func, object) => {
-  if (object instanceof Map) {
+  if (object instanceof Set) {
+    return findIterable(func, object)
+  } else if (object instanceof Map) {
     return findMap(func, object)
   } else if (object[Symbol.iterator]) {
     return findIterable(func, object)
