@@ -662,6 +662,11 @@ describe('find', () => {
     .then(result => assert.strictEqual(result, 'tres'))
     .end(done)
   })
+  it('find element in set', () => {
+    const set = new Set([ 1, 2, 5, 7 ])
+    const result = F.find(a => a > 5, set)
+    assert.strictEqual(result, 7)
+  })
 })
 
 describe("some", () => {
