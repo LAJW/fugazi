@@ -326,6 +326,25 @@ const findEnumerable = (func, enumerable) => {
   }
 }
 
+const findMap = (func, map) => {
+  const promises = [ ]
+  for (const pair of map) {
+    const value = pair[1]
+    const key   = pair[0]
+    const condition = func(value, key, map)
+    if (isPromise(condition)) {
+      promises.push(condition.then(condition => condition
+                                   ? { value }
+                                   : undefined))
+    } else if (condition) {
+      return value
+    }
+  }
+  if (promises.length) {
+    return findPromise(id, promises).then(param("value"))
+  }
+}
+
 const someIterable = (func, iterable) => {
   let i = 0
   let promises = [ ]
@@ -654,7 +673,9 @@ F.reduceMap        = F.curry(reduce.map)
 F.reduceSet        = F.curry(reduce.set)
 
 F.find = F.curry((func, object) => {
-  if (object[Symbol.iterator]) {
+  if (object instanceof Map) {
+    return findMap(func, object)
+  } else if (object[Symbol.iterator]) {
     return findIterable(func, object)
   } else {
     return findEnumerable(func, object)
