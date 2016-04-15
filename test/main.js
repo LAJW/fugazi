@@ -622,6 +622,36 @@ describe('find', () => {
     .then(result => assert.strictEqual(result, undefined))
     .end(done)
   })
+  it("find element in Map", () => {
+    const map = new Map([
+      [ "one", "uno" ],
+      [ "two", "dos" ],
+      [ "three", "tres" ],
+      [ "four", "quatro" ],
+    ])
+    const result = F.find(val => val.indexOf('t') >= 0, map)
+    assert.strictEqual(result, 'tres')
+  })
+  it("element in Map not found results in undefined", () => {
+    const map = new Map([
+      [ "one", "uno" ],
+      [ "two", "dos" ],
+      [ "three", "tres" ],
+      [ "four", "quatro" ],
+    ])
+    const result = F.find(val => val.indexOf('x') >= 0, map)
+    assert.strictEqual(result, undefined)
+  })
+  it("find element in Map by key", () => {
+    const map = new Map([
+      [ "one", "uno" ],
+      [ "two", "dos" ],
+      [ "three", "tres" ],
+      [ "four", "quatro" ],
+    ])
+    const result = F.find((val, key) => key.indexOf('t') >= 0, map)
+    assert.strictEqual(result, 'dos')
+  })
 })
 
 describe("some", () => {
