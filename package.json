@@ -24,7 +24,7 @@
   },
   "homepage": "https://github.com/lajw/flowless#readme",
   "dependencies": {
-    "ramda": "^0.20.0"
+    "ramda": "~0.21.0"
   },
   "devDependencies": {
     "istanbul": "^0.4.2",
