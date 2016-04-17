@@ -404,29 +404,6 @@ describe("map", () => {
     const result = F.map((value, key) => key, { one : 1, two : 2, three : 3 })
     assert.deepEqual(result, { one : "one", two : "two", three : "three" })
   })
-  it("map object by object", () => {
-    const result = F.map({
-      type      : x => x,
-      timestamp : unix => new Date(unix),
-      first     : (val, key, object) => object.context.items[0],
-      object    : (val, key, object) => object.context.object,
-      static    : "static value"
-    }, {
-      context : {
-        items  : [ "ignore", "bad" ],
-        object : "structure"
-      },
-      type      : "object",
-      timestamp : 1000
-    })
-    assert.deepEqual(result, {
-      type      : "object",
-      timestamp : new Date(1000),
-      first     : "ignore",
-      object    : "structure",
-      static    : "static value"
-    })
-  })
   it("array + asynchronous callback, synchronize automatically", done => {
     F.map(x => Promise.resolve(x * 2), [ 1, 2, 3, 4, 5 ])
     .then(result => assert.deepEqual(result, [ 2, 4, 6, 8, 10 ]))
@@ -435,32 +412,6 @@ describe("map", () => {
   it("object + asynchronous callback, synchronize automatically", done => {
     F.map(x => Promise.resolve(x * 2), { one : 1, two : 2, three : 3 })
     .then(result => assert.deepEqual(result, { one : 2, two : 4, three : 6 }))
-    .end(done)
-  })
-  it("object + asynchronous object parameters, synchronize automatically", done => {
-    F.map({
-      type      : x => Promise.resolve(x),
-      timestamp : unix => new Date(unix),
-      first     : (val, key, object) => object.context.items[0],
-      object    : (val, key, object) => object.context.object,
-      static    : "static value",
-      promised  : Promise.resolve("promised value")
-    }, {
-      context : {
-        items  : [ "ignore", "bad" ],
-        object : "structure"
-      },
-      type      : "object",
-      timestamp : 1000
-    })
-    .then(result => assert.deepEqual(result, {
-      type      : "object",
-      timestamp : new Date(1000),
-      first     : "ignore",
-      object    : "structure",
-      static    : "static value",
-      promised  : "promised value"
-    }))
     .end(done)
   })
   it("map over ES6 Set synchronously", () => {

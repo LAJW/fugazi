@@ -132,33 +132,14 @@ const map = {
   enumerable : (func, enumerable) => {
     const result = { }
     const promises = [ ]
-    if (typeof func === "function") {
-      // regular mapping
-      each.enumerable((value, key) => {
-        const element = func(value, key, enumerable)
-        if (isPromise(element)) {
-          promises.push(element.then(value => result[key] = value))
-        } else {
-          result[key] = element
-        }
-      }, enumerable)
-    } else {
-      // func is object => map params
-      each.enumerable((func, key) => {
-        if (typeof func === "function") {
-          const element = func(enumerable[key], key, enumerable)
-          if (isPromise(element)) {
-            promises.push(element.then(value => result[key] = value))
-          } else {
-            result[key] = element
-          }
-        } else if (isPromise(func)) {
-          promises.push(func.then(value => result[key] = value))
-        } else {
-          result[key] = func
-        }
-      }, func)
-    }
+    each.enumerable((value, key) => {
+      const element = func(value, key, enumerable)
+      if (isPromise(element)) {
+        promises.push(element.then(value => result[key] = value))
+      } else {
+        result[key] = element
+      }
+    }, enumerable)
     if (promises.length) {
       return Promise.all(promises)
       .then(() => result)
