@@ -263,87 +263,92 @@ const findPromise = (func, promises) => new Promise((resolve, reject) => {
   }
 })
 
-const findIterable = (func, iterable) => {
-  let i = 0
-  let promise
-  for (const value of iterable) {
-    if (promise) {
-      promise = promise.then(container => {
-        if (container) {
-          return container
-        }
+const find = {
+  iterable : (func, iterable) => {
+    let i = 0
+    let promise
+    for (const value of iterable) {
+      if (promise) {
+        promise = promise.then(container => {
+          if (container) {
+            return container
+          }
+          const condition = func(value, i)
+          if (isPromise(condition)) {
+            return condition.then(condition => {
+              if (condition) {
+                return { value }
+              }
+              i += 1
+            })
+          } else if (condition) {
+            return { value }
+          } else {
+            i += 1
+          }
+        })
+      } else {
         const condition = func(value, i)
         if (isPromise(condition)) {
-          return condition.then(condition => {
+          promise = condition.then(condition => {
             if (condition) {
               return { value }
             }
             i += 1
           })
         } else if (condition) {
-          return { value }
+          return value
         } else {
           i += 1
         }
-      })
-    } else {
-      const condition = func(value, i)
-      if (isPromise(condition)) {
-        promise = condition.then(condition => {
-          if (condition) {
-            return { value }
-          }
-          i += 1
-        })
-      } else if (condition) {
-        return value
-      } else {
-        i += 1
       }
     }
-  }
-  if (promise) {
-    return promise.then(param("value"))
+    if (promise) {
+      return promise.then(param("value"))
+    }
+  },
+
+  // Not stable find. Promises will race to find first
+  enumerable : (func, enumerable) => {
+    const promises = [ ]
+    for (const i in enumerable) {
+      const value     = enumerable[i]
+      const condition = func(value, i, enumerable)
+      if (isPromise(condition)) {
+        promises.push(condition.then(condition => condition
+                                     ? { value }
+                                     : undefined))
+      } else if (condition) {
+        return value
+      }
+    }
+    if (promises.length) {
+      return findPromise(id, promises).then(param("value"))
+    }
+  },
+
+  map : (func, map) => {
+    const promises = [ ]
+    for (const pair of map) {
+      const value = pair[1]
+      const key   = pair[0]
+      const condition = func(value, key, map)
+      if (isPromise(condition)) {
+        promises.push(condition.then(condition => condition
+                                     ? { value }
+                                     : undefined))
+      } else if (condition) {
+        return value
+      }
+    }
+    if (promises.length) {
+      return findPromise(id, promises).then(param("value"))
+    }
   }
 }
 
-// Not stable find. Promises will race to find first
-const findEnumerable = (func, enumerable) => {
-  const promises = [ ]
-  for (const i in enumerable) {
-    const value     = enumerable[i]
-    const condition = func(value, i, enumerable)
-    if (isPromise(condition)) {
-      promises.push(condition.then(condition => condition
-                                   ? { value }
-                                   : undefined))
-    } else if (condition) {
-      return value
-    }
-  }
-  if (promises.length) {
-    return findPromise(id, promises).then(param("value"))
-  }
-}
+find.set = find.iterable
 
-const findMap = (func, map) => {
-  const promises = [ ]
-  for (const pair of map) {
-    const value = pair[1]
-    const key   = pair[0]
-    const condition = func(value, key, map)
-    if (isPromise(condition)) {
-      promises.push(condition.then(condition => condition
-                                   ? { value }
-                                   : undefined))
-    } else if (condition) {
-      return value
-    }
-  }
-  if (promises.length) {
-    return findPromise(id, promises).then(param("value"))
-  }
-}
 
 const someIterable = (func, iterable) => {
   let i = 0
@@ -666,23 +671,18 @@ F.mapMap        = F.curry(map.map)
 F.reduce = F.curry(function(func, prev, object) {
   return deref(reduce, object, arguments)
 })
-
 F.reduceIterable   = F.curry(reduce.iterable)
 F.reduceEnumerable = F.curry(reduce.enumerable)
 F.reduceMap        = F.curry(reduce.map)
 F.reduceSet        = F.curry(reduce.set)
 
-F.find = F.curry((func, object) => {
-  if (object instanceof Set) {
-    return findIterable(func, object)
-  } else if (object instanceof Map) {
-    return findMap(func, object)
-  } else if (object[Symbol.iterator]) {
-    return findIterable(func, object)
-  } else {
-    return findEnumerable(func, object)
-  }
+F.find = F.curry(function(func, object) {
+  return deref(find, object, arguments)
 })
+F.findEnumerable = F.curry(find.enumerable)
+F.findIterable   = F.curry(find.iterable)
+F.findMap        = F.curry(find.map)
+F.findSet        = F.curry(find.set)
 
 F.some = F.curry((func, object) => {
   if (object[Symbol.iterator]) {
