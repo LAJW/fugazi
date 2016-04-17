@@ -128,26 +128,27 @@ const filter = {
   }
 }
 
-const map = {
-  enumerable : (func, enumerable) => {
-    const result = { }
-    const promises = [ ]
-    each.enumerable((value, key) => {
-      const element = func(value, key, enumerable)
-      if (isPromise(element)) {
-        promises.push(element.then(value => result[key] = value))
-      } else {
-        result[key] = element
-      }
-    }, enumerable)
-    if (promises.length) {
-      return Promise.all(promises)
-      .then(() => result)
+const createMap = (each, create, assign) => (proc, object) => {
+  const out      = create()
+  const promises = [ ]
+  each((value, key) => {
+    const result = proc(value, key, object)
+    if (isPromise(result)) {
+      promises.push(result)
+      result.then(result => assign(out, result, key))
     } else {
-      return result
+      assign(out, result, key)
     }
-  },
+  }, object)
+  if (promises.length) {
+    return Promise.all(promises)
+    .then(() => out)
+  } else {
+    return out
+  }
+}
 
+const map = {
   iterable : (func, iterable) => {
     const result = [ ]
     let asynchronous = false
@@ -165,51 +166,17 @@ const map = {
     }
   },
 
-  set : (func, iterable) => {
-    const result = new Set()
-    let promise
-    each.iterable((value, key) => {
-      const element = func(value, key, iterable)
-      if (isPromise(element)) {
-        if (promise) {
-          promise = promise.then(element)
-        } else {
-          promise = element
-        }
-        promise.then(element => result.add(element))
-      } else {
-        result.add(element)
-      }
-    }, iterable)
-    if (promise) {
-      return promise.then(() => result)
-    } else {
-      return result
-    }
-  },
+  enumerable : createMap(each.enumerable,
+                         () => ({}),
+                         (out, result, key) => out[key] = result),
 
-  map : (func, iterable) => {
-    const result = new Map()
-    let promise
-    each.iterable(value => {
-      const element = func(value[0], value[1], iterable)
-      if (isPromise(element)) {
-        if (promise) {
-          promise = promise.then(element)
-        } else {
-          promise = element
-        }
-        promise.then(element => result.set(value[0], element))
-      } else {
-        result.set(element)
-      }
-    }, iterable)
-    if (promise) {
-      return promise.then(() => result)
-    } else {
-      return result
-    }
-  }
+  set : createMap(each.set,
+                  () => new Set(),
+                  () => (out, result) => out.add(result)),
+
+  map : createMap(each.map,
+                  () => new Map(),
+                  () => (out, result, key) => out.set(key, result))
 }
 
 
