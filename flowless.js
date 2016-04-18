@@ -199,11 +199,11 @@ const map = {
 
   set : createMap(each.set,
                   () => new Set(),
-                  () => (out, result) => out.add(result)),
+                  (out, result) => out.add(result)),
 
   map : createMap(each.map,
                   () => new Map(),
-                  () => (out, result, key) => out.set(key, result))
+                  (out, result, key) => out.set(key, result))
 }
 
 
