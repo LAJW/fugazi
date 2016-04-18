@@ -48,6 +48,33 @@ const each = {
 }
 each.set = each.iterable
 
+const until = {
+  map : (cb, map) => {
+    for (const pair of map) {
+      if (cb(pair[1], pair[0], map)) {
+        return true
+      }
+    }
+  },
+  iterable : (cb, set) => {
+    let i = 0
+    for (const value of set) {
+      if (cb(value, i, set)) {
+        return true
+      }
+      i += 1
+    }
+  },
+  enumerable : (cb, enumerable) => {
+    for (const key in enumerable) {
+      if (cb(enumerable[key], key, enumerable)) {
+        return true
+      }
+    }
+  }
+}
+until.set = until.iterable
+
 const deref = (alg, target, args) => {
   if (target instanceof Set) {
     return alg.set(...args)
@@ -297,41 +324,22 @@ const find = {
 
 find.set = find.iterable
 
-
-const someIterable = (func, iterable) => {
-  let i = 0
+const createSome = until => (pred, object) => {
   let promises = [ ]
-  for (const value of iterable) {
-    const condition = func(value, i, iterable)
+  return until((value, key) => {
+    const condition = pred(value, key, object)
     if (isPromise(condition)) {
       promises.push(condition)
-    } else if (condition) {
-      return true
     } else {
-      i++
+      return condition
     }
-  }
-  if (promises.length) {
-    return findPromise(id, promises).then(result => !!result)
-  }
-  return false
+  }, object)
+  || !!promises.length
+     && findPromise(id, promises).then(result => !!result)
 }
 
-const someEnumerable = (func, enumerable) => {
-  let promises = [ ]
-  for (const i in enumerable) {
-    const condition = func(enumerable[i], i, enumerable)
-    if (isPromise(condition)) {
-      promises.push(condition)
-    } else if (condition) {
-      return true
-    }
-  }
-  if (promises.length) {
-    return findPromise(id, promises).then(result => !!result)
-  }
-  return false
-}
+const someIterable = createSome(until.iterable)
+const someEnumerable = createSome(until.enumerable)
 
 const rangeAsc = function*(l, r) {
   for (; l <= r; l++) {
