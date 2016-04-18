@@ -238,6 +238,26 @@ const findPromise = (func, promises) => new Promise((resolve, reject) => {
   }
 })
 
+const createFind = until => (func, object) => {
+  const promises = [ ]
+  let result
+  if (until((value, key) => {
+    const condition = func(value, key, object)
+    if (isPromise(condition)) {
+      promises.push(condition.then(condition => condition
+                                   ? { value }
+                                   : undefined))
+    } else if (condition) {
+      result = value
+      return condition
+    }
+  }, object)) {
+    return result
+  } else if (promises.length) {
+    return findPromise(id, promises).then(param("value"))
+  }
+}
+
 const find = {
   iterable : (func, iterable) => {
     let i = 0
@@ -282,46 +302,9 @@ const find = {
       return promise.then(param("value"))
     }
   },
-
-  // Not stable find. Promises will race to find first
-  enumerable : (func, enumerable) => {
-    const promises = [ ]
-    for (const i in enumerable) {
-      const value     = enumerable[i]
-      const condition = func(value, i, enumerable)
-      if (isPromise(condition)) {
-        promises.push(condition.then(condition => condition
-                                     ? { value }
-                                     : undefined))
-      } else if (condition) {
-        return value
-      }
-    }
-    if (promises.length) {
-      return findPromise(id, promises).then(param("value"))
-    }
-  },
-
-  map : (func, map) => {
-    const promises = [ ]
-    for (const pair of map) {
-      const value = pair[1]
-      const key   = pair[0]
-      const condition = func(value, key, map)
-      if (isPromise(condition)) {
-        promises.push(condition.then(condition => condition
-                                     ? { value }
-                                     : undefined))
-      } else if (condition) {
-        return value
-      }
-    }
-    if (promises.length) {
-      return findPromise(id, promises).then(param("value"))
-    }
-  }
+  enumerable : createFind(until.enumerable),
+  map        : createFind(until.map),
 }
-
 find.set = find.iterable
 
 const createSome = until => (pred, object) => {
