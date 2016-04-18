@@ -338,8 +338,12 @@ const createSome = until => (pred, object) => {
      && findPromise(id, promises).then(result => !!result)
 }
 
-const someIterable = createSome(until.iterable)
-const someEnumerable = createSome(until.enumerable)
+const some = {
+  iterable   : createSome(until.iterable),
+  enumerable : createSome(until.enumerable),
+  map        : createSome(until.map),
+  set        : createSome(until.set)
+}
 
 const rangeAsc = function*(l, r) {
   for (; l <= r; l++) {
@@ -640,12 +644,8 @@ F.findIterable   = F.curry(find.iterable)
 F.findMap        = F.curry(find.map)
 F.findSet        = F.curry(find.set)
 
-F.some = F.curry((func, object) => {
-  if (object[Symbol.iterator]) {
-    return someIterable(func, object)
-  } else {
-    return someEnumerable(func, object)
-  }
+F.some = F.curry(function(func, object) {
+  return deref(some, object, arguments)
 })
 
 F.every = F.curry((func, object) =>
