@@ -95,13 +95,6 @@ const each = {
   enumerable : generic.enumerable.each,
 }
 
-const until = {
-  map        : generic.map.until,
-  iterable   : generic.iterable.until,
-  enumerable : generic.enumerable.until,
-  set        : generic.set.until
-}
-
 const deref = (alg, target, args) => {
   if (target instanceof Set) {
     return alg.set(...args)
@@ -217,8 +210,8 @@ const map = {
 }
 
 
-const createReduce = each => (func, prev, enumerable) => {
-  each((value, key) => {
+const createReduce = generic => (func, prev, enumerable) => {
+  generic.each((value, key) => {
     if (isPromise(prev)) {
       prev = prev.then(prev => func(prev, value, key, enumerable))
     } else {
@@ -228,7 +221,7 @@ const createReduce = each => (func, prev, enumerable) => {
   return prev
 }
 
-const reduce = map.enumerable(createReduce, each)
+const reduce = map.enumerable(createReduce, generic)
 
 // first promise that passes predicate will resolve
 const findPromise = (func, promises) => new Promise((resolve, reject) => {
@@ -312,14 +305,14 @@ const find = {
       return promise.then(param("value"))
     }
   },
-  enumerable : createFind(until.enumerable),
-  map        : createFind(until.map),
+  enumerable : createFind(generic.enumerable.until),
+  map        : createFind(generic.map.until),
+  set        : createFind(generic.set.until),
 }
-find.set = find.iterable
 
-const createSome = until => (pred, object) => {
+const createSome = generic => (pred, object) => {
   let promises = [ ]
-  return until((value, key) => {
+  return generic.until((value, key) => {
     const condition = pred(value, key, object)
     if (isPromise(condition)) {
       promises.push(condition)
@@ -331,12 +324,7 @@ const createSome = until => (pred, object) => {
      && findPromise(id, promises).then(result => !!result)
 }
 
-const some = {
-  iterable   : createSome(until.iterable),
-  enumerable : createSome(until.enumerable),
-  map        : createSome(until.map),
-  set        : createSome(until.set)
-}
+const some = map.enumerable(createSome, generic)
 
 const rangeAsc = function*(l, r) {
   for (; l <= r; l++) {
@@ -600,10 +588,10 @@ F.forEach = F.curry(function (func, object) {
   deref(each, object, arguments)
 })
 
-F.forEachEnumerable = F.curry(each.enumerable)
-F.forEachIterable   = F.curry(each.iterable)
-F.forEachSet        = F.curry(each.set)
-F.forEachMap        = F.curry(each.map)
+F.forEachEnumerable = F.curry(generic.enumerable.each)
+F.forEachIterable   = F.curry(generic.iterable.each)
+F.forEachSet        = F.curry(generic.set.each)
+F.forEachMap        = F.curry(generic.map.each)
 
 F.filter = F.curry(function (func, object) {
   return deref(filter, object, arguments)
