@@ -114,10 +114,10 @@ const deref = (alg, target, args) => {
   }
 }
 
-const createFilter = (each, createResult, proc) => (pred, object) => {
-  let result = createResult()
+const createFilter = generic => (pred, object) => {
+  let result = generic.create()
   let promise
-  each((val, key) => {
+  generic.each((val, key) => {
     const condition = pred(val, key, object)
     if (isPromise(condition)) {
       if (!promise) {
@@ -127,11 +127,11 @@ const createFilter = (each, createResult, proc) => (pred, object) => {
       }
       promise.then(condition => {
         if (condition) {
-          proc(result, val, key)
+          generic.store(result, val, key)
         }
       })
     } else if (condition) {
-      proc(result, val, key)
+      generic.store(result, val, key)
     }
   }, object)
   if (promise) {
@@ -142,19 +142,10 @@ const createFilter = (each, createResult, proc) => (pred, object) => {
 }
 
 const filter = {
-  set : createFilter(each.set,
-                     () => new Set(),
-                     (result, val) => result.add(val)),
-
-  map : createFilter(each.map,
-                     () => new Map(),
-                     (result, val, key) => result.set(key, val)),
-
-  enumerable : createFilter(each.enumerable,
-                            () => ({ }),
-                            (result, val, key) => result[key] = val),
-
-  iterable : (func, iterable) => {
+  set        : createFilter(generic.set),
+  map        : createFilter(generic.map),
+  enumerable : createFilter(generic.enumerable),
+  iterable   : (func, iterable) => {
     const result     = [ ] // results resolved immediately
     const rest       = [ ] // unresolved values
     const conditions = [ ] // asynchronous condition map for rest
