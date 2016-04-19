@@ -27,53 +27,80 @@ const callThen = func => function () {
 
 const param = key => base => base ? base[key] : undefined
 
-const each = {
-  map : (cb, map) => {
-    for (const pair of map) {
-      cb(pair[1], pair[0], map)
+const forOf = (cb, object) => {
+  let i = 0
+  for (const value of object) {
+    cb(value, i, object)
+    i++
+  }
+}
+
+const forIn = (cb, object) => {
+  for (const key in object) {
+    cb(object[key], key, object)
+  }
+}
+
+const untilOf = (cb, object) => {
+  let i = 0
+  for (const value of object) {
+    const result = cb(value, i, object)
+    if (result) {
+      return result
     }
-  },
-  iterable : (cb, set) => {
-    let i = 0
-    for (const value of set) {
-      cb(value, i, set)
-      i += 1
-    }
-  },
-  enumerable : (cb, enumerable) => {
-    for (const key in enumerable) {
-      cb(enumerable[key], key, enumerable)
+    i++
+  }
+}
+
+const untilIn = (cb, object) => {
+  for (const key in object) {
+    const result = cb(object[key], key, object)
+    if (result) {
+      return result
     }
   }
 }
-each.set = each.iterable
+
+const generic = {
+  iterable : {
+    create : () => [ ],
+    store  : (object, value) => object.push(value),
+    each   : forOf,
+    until  : untilOf,
+  },
+  enumerable : {
+    create : () => ({ }),
+    store  : (object, value, key) => object[key] = value,
+    each   : forIn,
+    until  : untilIn,
+  },
+  map : {
+    create : () => new Map(),
+    store  : (object, value, key) => object.set(key, value),
+    each   : (cb, map) => forOf(pair => cb(pair[1], pair[0], map), map),
+    until  : (cb, map) => untilOf(pair => cb(pair[1], pair[0], map), map),
+  },
+  set : {
+    create : () => new Set(),
+    store  : (object, value) => object.add(value),
+    each   : forOf,
+    until  : untilOf,
+  }
+}
+
+const each = {
+  map        : generic.map.each,
+  set        : generic.set.each,
+  iterable   : generic.iterable.each,
+  enumerable : generic.enumerable.each,
+}
 
 const until = {
-  map : (cb, map) => {
-    for (const pair of map) {
-      if (cb(pair[1], pair[0], map)) {
-        return true
-      }
-    }
-  },
-  iterable : (cb, set) => {
-    let i = 0
-    for (const value of set) {
-      if (cb(value, i, set)) {
-        return true
-      }
-      i += 1
-    }
-  },
-  enumerable : (cb, enumerable) => {
-    for (const key in enumerable) {
-      if (cb(enumerable[key], key, enumerable)) {
-        return true
-      }
-    }
-  }
+  map        : generic.map.until,
+  iterable   : generic.iterable.until,
+  enumerable : generic.enumerable.until,
+  set        : generic.set.until
 }
-until.set = until.iterable
 
 const deref = (alg, target, args) => {
   if (target instanceof Set) {
