@@ -173,16 +173,16 @@ const filter = {
   }
 }
 
-const createMap = (each, create, assign) => (proc, object) => {
-  const out      = create()
+const createMap = generic => (proc, object) => {
+  const out      = generic.create()
   const promises = [ ]
-  each((value, key) => {
+  generic.each((value, key) => {
     const result = proc(value, key, object)
     if (isPromise(result)) {
       promises.push(result)
-      result.then(result => assign(out, result, key))
+      result.then(result => generic.store(out, result, key))
     } else {
-      assign(out, result, key)
+      generic.store(out, result, key)
     }
   }, object)
   if (promises.length) {
@@ -211,17 +211,9 @@ const map = {
     }
   },
 
-  enumerable : createMap(each.enumerable,
-                         () => ({}),
-                         (out, result, key) => out[key] = result),
-
-  set : createMap(each.set,
-                  () => new Set(),
-                  (out, result) => out.add(result)),
-
-  map : createMap(each.map,
-                  () => new Map(),
-                  (out, result, key) => out.set(key, result))
+  enumerable : createMap(generic.enumerable),
+  set        : createMap(generic.set),
+  map        : createMap(generic.map),
 }
 
 
