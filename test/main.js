@@ -263,6 +263,14 @@ describe("ifElse", () => {
     .then(() => sgn(NaN)).then(result => assert.strictEqual(result, 0))
     .end(done)
   })
+  it("ifElse should return then/else if then is not a function", () => {
+    const sgn = F.ifElse(a => a > 0, 1,
+                         a => a < 0, -1,
+                         0)
+    assert.strictEqual(sgn(5), 1)
+    assert.strictEqual(sgn(-3), -1)
+    assert.strictEqual(sgn("Bunny"), 0)
+  })
 })
 
 describe("forEach", () => {
