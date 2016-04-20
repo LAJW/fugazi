@@ -519,7 +519,7 @@ F.ifElse = callThen(function () {
             if (isPromise(condition)) {
               return condition.then(condition => {
                 if (condition) {
-                  return { value : then(value) }
+                  return { value : isFunction(then) ? then(value) : then }
                 }
               })
             } else if (condition) {
@@ -533,25 +533,26 @@ F.ifElse = callThen(function () {
           promise = condition
           .then(condition => {
             if (condition) {
-              return { value : then(value) }
+              return { value : isFunction(then) ? then(value) : then }
             }
           })
         } else if (condition) {
-          return then(value)
+          return isFunction(then) ? then(value) : then
         }
       }
     }
+    const last = funcs[funcs.length - 1]
     if (promise) {
       return promise
       .then(container => {
         if (container) {
           return container.value
         } else if (funcs.length % 2) {
-          return funcs[funcs.length - 1](value)
+          return isFunction(last) ? last(value) : last
         }
       })
     } else if (funcs.length % 2) {
-      return funcs[funcs.length - 1](value)
+      return isFunction(last) ? last(value) : last
     }
   }
 })
