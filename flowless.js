@@ -346,6 +346,39 @@ const F = module.exports = callThen(function(a1) {
   }
 })
 
+const match = pred => {
+  if (pred instanceof Function) {
+    if (pred === Boolean) {
+      return value => typeof value === "boolean"
+    } else if (pred === Number) {
+      return value => typeof value === "number"
+    } else if (pred === String) {
+      return value => typeof value === "string"
+    } else if (pred.prototype === id.prototype) {
+      return value => pred(value)
+    } else {
+      return value => value && value instanceof pred
+    }
+  } else if (pred instanceof RegExp) {
+    return value => pred.test(value)
+  } else if (pred instanceof Array) {
+    const possible = pred.map(match)
+    return value => F.some(pred => pred(value), possible)
+  } else if (pred instanceof Object) {
+    const possible = map.enumerable(match, pred)
+    const keys     = Object.keys(possible)
+    return value => {
+      if (!value || !(value instanceof Object)
+          || Object.keys(value).length !== keys.length) {
+        return false
+      }
+      return F.every((possible, key) => possible(value[key]), possible)
+    }
+  } else {
+    return value => value === pred
+  }
+}
+
 // Essentials
 
 /**
@@ -504,7 +537,17 @@ F.param = F.curry((key, base) => base ? base[key] : undefined)
  * abs(-3) // Promise resolving to 3
  */
 F.ifElse = callThen(function () {
-  const funcs = arguments
+  const funcs = [ ]
+  for (let i = 0, il = arguments.length - 1; i < il; i += 2) {
+    const pred = arguments[i]
+    const then = arguments[i + 1]
+    funcs.push(isFunction(pred) ? pred : match(pred))
+    funcs.push(isFunction(then) ? then : () => then)
+  }
+  if (arguments.length % 2) {
+    const last = arguments[arguments.length - 1]
+    funcs.push(isFunction(last) ? last : () => last)
+  }
   return value => {
     let promise
     for (let i = 0, il = funcs.length - 1; i < il; i += 2) {
@@ -519,7 +562,7 @@ F.ifElse = callThen(function () {
             if (isPromise(condition)) {
               return condition.then(condition => {
                 if (condition) {
-                  return { value : isFunction(then) ? then(value) : then }
+                  return { value : then(value) }
                 }
               })
             } else if (condition) {
@@ -533,11 +576,11 @@ F.ifElse = callThen(function () {
           promise = condition
           .then(condition => {
             if (condition) {
-              return { value : isFunction(then) ? then(value) : then }
+              return { value : then(value) }
             }
           })
         } else if (condition) {
-          return isFunction(then) ? then(value) : then
+          return then(value)
         }
       }
     }
@@ -548,11 +591,11 @@ F.ifElse = callThen(function () {
         if (container) {
           return container.value
         } else if (funcs.length % 2) {
-          return isFunction(last) ? last(value) : last
+          return last(value)
         }
       })
     } else if (funcs.length % 2) {
-      return isFunction(last) ? last(value) : last
+      return last(value)
     }
   }
 })
@@ -632,38 +675,5 @@ F.some = F.curry(function(func, object) {
 
 F.every = F.curry((func, object) =>
   F(F.some(F(func, R.not)), R.not)(object))
-
-const match = pred => {
-  if (pred instanceof Function) {
-    if (pred === Boolean) {
-      return value => typeof value === "boolean"
-    } else if (pred === Number) {
-      return value => typeof value === "number"
-    } else if (pred === String) {
-      return value => typeof value === "string"
-    } else if (pred.prototype === id.prototype) {
-      return value => pred(value)
-    } else {
-      return value => value && value instanceof pred
-    }
-  } else if (pred instanceof RegExp) {
-    return value => pred.test(value)
-  } else if (pred instanceof Array) {
-    const possible = pred.map(match)
-    return value => F.some(pred => pred(value), possible)
-  } else if (pred instanceof Object) {
-    const possible = map.enumerable(match, pred)
-    const keys     = Object.keys(possible)
-    return value => {
-      if (!value || !(value instanceof Object)
-          || Object.keys(value).length !== keys.length) {
-        return false
-      }
-      return F.every((possible, key) => possible(value[key]), possible)
-    }
-  } else {
-    return value => value === pred
-  }
-}
 
 F.match = match
