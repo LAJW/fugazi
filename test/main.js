@@ -211,6 +211,11 @@ describe("ifElse", () => {
     assert.strictEqual(first([ 5, 4, 3 ]), 5)
     assert.strictEqual(first(undefined), undefined)
   })
+  it("condition if not function should apply to F.match rules", () => {
+    const startsWithWAT = F.ifElse(/^WAT/, "starts with WAT", "WATLess")
+    assert.strictEqual(startsWithWAT("WAT's up"), "starts with WAT")
+    assert.strictEqual(startsWithWAT("nah"), "WATLess")
+  })
   it("asyncrhonous condition", done => {
     const abs = F.ifElse(a => Promise.resolve(a >= 0), a => a, a => a * -1)
     abs(5).then(result => assert.strictEqual(result, 5))
