@@ -662,6 +662,9 @@ F.reduceMap        = F.curry(reduce.map)
 F.reduceSet        = F.curry(reduce.set)
 
 F.find = F.curry(function(func, object) {
+  if (!isFunction(func)) {
+    return deref(find, object, [ match(func), object ])
+  }
   return deref(find, object, arguments)
 })
 F.findEnumerable = F.curry(find.enumerable)
