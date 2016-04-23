@@ -325,6 +325,11 @@ describe("filter", () => {
     const result = F.filter((value, key) => key % 2, arr)
     assert.deepEqual(result, [ -1, -2, 9 ])
   })
+  it("filter array by match", () => {
+    const arr = [ "one", "two", "three", "four", "five" ]
+    const result = F.filter(/o/g, arr)
+    assert.deepEqual(result, [ "one", "two", "four" ])
+  })
   it("filter object by value", () => {
     const object = { one : "Uno", two : "Dos", three : "Tres" }
     const result = F.filter(value => value.indexOf("s") >= 0, object)
