@@ -654,6 +654,17 @@ describe("some", () => {
     const result = F.some(val => val < 0, arr)
     assert.strictEqual(result, true)
   })
+  it("some elements in the array do match", () => {
+    const arr = [
+      { x : 1, y : 2 },
+      { x : -1, y : 2 }
+    ]
+    const result = F.some({
+      x : x => x < 0,
+      y : y => y > 0
+    }, arr)
+    assert.strictEqual(result, true)
+  })
   it("some elements in array based on key", () => {
     const arr = [ 1, 2, 3, 4, 5 ]
     const result = F.some((val, key) => key === 4, arr)
