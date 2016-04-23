@@ -675,7 +675,10 @@ F.findIterable   = F.curry(find.iterable)
 F.findMap        = F.curry(find.map)
 F.findSet        = F.curry(find.set)
 
-F.some = F.curry(function(func, object) {
+F.some = F.curry(function (func, object) {
+  if (!isFunction(func)) {
+    return deref(some, object, [ match(func), object ])
+  }
   return deref(some, object, arguments)
 })
 
