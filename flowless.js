@@ -638,6 +638,9 @@ F.forEachSet        = F.curry(generic.set.each)
 F.forEachMap        = F.curry(generic.map.each)
 
 F.filter = F.curry(function (func, object) {
+  if (!isFunction(func)) {
+    return deref(filter, object, [ match(func), object ])
+  }
   return deref(filter, object, arguments)
 })
 F.filterEnumerable = F.curry(filter.enumerable)
