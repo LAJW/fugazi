@@ -888,3 +888,19 @@ describe("match", () => {
     .end(done)
   })
 })
+
+describe("match loose", () => {
+  it("match object, ignore extra properties", () => {
+    const object = {
+      x    : 1,
+      y    : 0,
+      z    : -1,
+      meta : "text",
+    }
+    assert.ok(F.matchLoose({
+      x : Number,
+      y : Number,
+      z : Number,
+    }, object))
+  })
+})
