@@ -365,20 +365,20 @@ const superMatch = strict => pred => {
     const possible = pred.map(superMatch(strict))
     return value => F.some(pred => pred(value), possible)
   } else if (pred instanceof Object) {
-    const possible = map.enumerable(superMatch(strict), pred)
-    const keys     = Object.keys(possible)
+    const subMatches = map.enumerable(superMatch(strict), pred)
     if (strict) {
+      const subMatchesLength = Object.keys(subMatches).length
       return value => {
         if (!value || !(value instanceof Object)
-            || Object.keys(value).length !== keys.length) {
+            || Object.keys(value).length !== subMatchesLength) {
           return false
         }
-        return F.every((possible, key) => possible(value[key]), possible)
+        return F.every((subMatch, key) => subMatch(value[key]), subMatches)
       }
     } else {
       return value => value
       && value instanceof Object
-      && F.every((possible, key) => possible(value[key]), possible)
+      && F.every((subMatch, key) => subMatch(value[key]), subMatches)
     }
   } else {
     return value => value === pred
@@ -697,4 +697,4 @@ F.match = match
 
 F.matchKeys = (pred, obj) => F.every(F.args, 1, F.match(pred), obj)
 
-F.matchLoose = match(false)
+F.matchLoose = superMatch(false)
