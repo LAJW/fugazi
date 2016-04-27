@@ -379,6 +379,34 @@ const match = pred => {
   }
 }
 
+const matchLoose = pred => {
+  if (pred instanceof Function) {
+    if (pred === Boolean) {
+      return value => typeof value === "boolean"
+    } else if (pred === Number) {
+      return value => typeof value === "number"
+    } else if (pred === String) {
+      return value => typeof value === "string"
+    } else if (pred.prototype === id.prototype) {
+      return value => pred(value)
+    } else {
+      return value => value && value instanceof pred
+    }
+  } else if (pred instanceof RegExp) {
+    return value => pred.test(value)
+  } else if (pred instanceof Array) {
+    const possible = pred.map(match)
+    return value => F.some(pred => pred(value), possible)
+  } else if (pred instanceof Object) {
+    const possible = map.enumerable(match, pred)
+    return value => value
+                    && value instanceof Object
+                    && F.every((possible, key) => possible(value[key]), possible)
+  } else {
+    return value => value === pred
+  }
+}
+
 // Essentials
 
 /**
@@ -686,3 +714,7 @@ F.every = F.curry((func, object) =>
   F(F.some(F(func, R.not)), R.not)(object))
 
 F.match = match
+
+F.matchKeys = (pred, obj) => F.every(F.args, 1, F.match(pred), obj)
+
+F.matchLoose = matchLoose
