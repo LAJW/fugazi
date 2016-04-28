@@ -953,3 +953,24 @@ describe("match loose", () => {
     })(object))
   })
 })
+
+describe("match keys", () => {
+  it("match object's params by regex", () => {
+    const object = {
+      one   : 1,
+      two   : 2,
+      three : 3,
+    }
+    assert.ok(F.matchKeys(/[a-z]+/)(object))
+  })
+  it("match object's params by regex", () => {
+    const object = {
+      one   : 1,
+      two   : 2,
+      three : 3,
+      '4'   : 4,
+      '5'   : 5,
+    }
+    assert.ok(!F.matchKeys(/[a-z]+/)(object))
+  })
+})
