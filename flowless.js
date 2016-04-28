@@ -695,6 +695,6 @@ F.every = F.curry((func, object) =>
 
 F.match = match
 
-F.matchKeys = (pred, obj) => F.every(F.args, 1, F.match(pred), obj)
+F.matchKeys = F((pred, obj) => F.every(F(F.args, 1, F.match(pred)), obj))
 
 F.matchLoose = superMatch(false)
