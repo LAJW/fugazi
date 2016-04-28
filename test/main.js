@@ -901,6 +901,6 @@ describe("match loose", () => {
       x : Number,
       y : Number,
       z : Number,
-    }, object))
+    })(object))
   })
 })
