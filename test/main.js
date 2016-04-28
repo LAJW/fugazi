@@ -903,4 +903,53 @@ describe("match loose", () => {
       z : Number,
     })(object))
   })
+  it("match object, ignore extra properties", () => {
+    const object = {
+      x    : 1,
+      y    : 0,
+      z    : -1,
+      meta : "text",
+    }
+    assert.ok(F.matchLoose({
+      x : Number,
+      y : Number,
+      z : Number,
+    })(object))
+  })
+  it("match properties deeply", () => {
+    const object = {
+      pos : {
+        x    : 1,
+        y    : 0,
+        z    : -1,
+        meta : "another meta"
+      },
+      meta : "text",
+    }
+    assert.ok(F.matchLoose({
+      pos : {
+        x : Number,
+        y : Number,
+        z : Number,
+      }
+    })(object))
+  })
+  it("detect incorrect property that was defined", () => {
+    const object = {
+      pos : {
+        x    : 1,
+        y    : "definitely not a number",
+        z    : -1,
+        meta : "another meta"
+      },
+      meta : "text",
+    }
+    assert.ok(!F.matchLoose({
+      pos : {
+        x : Number,
+        y : Number,
+        z : Number,
+      }
+    })(object))
+  })
 })
