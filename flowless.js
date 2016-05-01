@@ -8,7 +8,9 @@
 /******************************************************************************/
 
 "use strict"
-const R = require("ramda")
+const R        = require("ramda")
+const stream   = require("stream")
+const isStream = require("is-stream")
 
 /******************************************************************************/
 
@@ -85,6 +87,28 @@ const generic = {
     store  : (object, value) => object.add(value),
     each   : forOf,
     until  : untilOf,
+  },
+  stream : {
+    create : () => new stream.Passthrough(),
+    store  : (stream, value) => stream.write(value),
+    each   : (proc, stream) => new Promise((resolve, reject) => {
+      stream.on("data", chunk => {
+        proc(chunk)
+      })
+      stream.on("end", () => resolve())
+      stream.on("error", err => reject(err))
+    }),
+    until : (proc, stream) => new Promise((resolve, reject) => {
+      let result
+      stream.on("data", chunk => {
+        result = proc(chunk)
+        if (result) {
+          stream.pause()
+        }
+      })
+      stream.on("end", () => resolve())
+      stream.on("error", err => reject(err))
+    })
   }
 }
 
@@ -93,6 +117,7 @@ const each = {
   set        : generic.set.each,
   iterable   : generic.iterable.each,
   enumerable : generic.enumerable.each,
+  stream     : generic.stream.each,
 }
 
 const deref = (alg, target, args) => {
@@ -102,6 +127,8 @@ const deref = (alg, target, args) => {
     return alg.map(...args)
   } else if (target[Symbol.iterator]) {
     return alg.iterable(...args)
+  } else if (isStream(target)) {
+    return alg.stream(...args)
   } else {
     return alg.enumerable(...args)
   }
