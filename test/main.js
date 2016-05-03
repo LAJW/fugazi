@@ -534,6 +534,12 @@ describe("reduce", () => {
     .then(result => assert.strictEqual(result, 6))
     .end(done)
   })
+  it("reduce stream", done => {
+    Promise.resolve(streamArray([ 1, 2, 5, 7 ]))
+    .then(F.reduce((count, x) => count + x, 0))
+    .then(result => assert.strictEqual(result, 15))
+    .then(() => done(), done)
+  })
 })
 
 describe('find', () => {
