@@ -196,7 +196,7 @@ module.exports = {
         "prefer-template": "off",
         "quote-props": "off",
         "quotes": "off",
-        "radix": "error",
+        "radix": "off",
         "require-jsdoc": "off",
         "require-yield": "error",
         "semi": "off",
