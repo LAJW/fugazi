@@ -8,8 +8,9 @@
 /******************************************************************************/
 
 "use strict"
-const F      = require("../flowless")
-const assert = require("assert")
+const F           = require("../flowless")
+const assert      = require("assert")
+const streamArray = require("stream-array")
 
 /******************************************************************************/
 /* global describe it */
@@ -311,6 +312,25 @@ describe("forEach", () => {
       { value : "Dos",  key : "two",   object },
       { value : "Tres", key : "three", object },
     ])
+  })
+  it("iterate over stream", done => {
+      const stream = streamArray([ "one", "two", "three", "four" ])
+      const result = [ ]
+      F.forEach(chunk => result.push(chunk), stream)
+      // forEach is side-effect function, we don't care when it finishes
+      setTimeout(() => {
+        try {
+          assert.deepEqual(result, [
+            "one",
+            "two",
+            "three",
+            "four",
+          ])
+          done()
+        } catch (err) {
+          done(err)
+        }
+      }, 1000)
   })
 })
 
