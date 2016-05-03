@@ -89,7 +89,7 @@ const generic = {
     until  : untilOf,
   },
   stream : {
-    create : () => new stream.Passthrough(),
+    create : () => new stream.PassThrough(),
     store  : (stream, value) => stream.write(value),
     each   : (proc, stream) => new Promise((resolve, reject) => {
       stream.on("data", chunk => {
@@ -190,6 +190,33 @@ const filter = {
       })
     }
     return result
+  },
+  stream : (pred, stream) => {
+    const out = generic.stream.create()
+    let promise
+    stream.on("data", chunk => {
+      const condition = pred(chunk)
+      if (promise) {
+        promise
+        .then(condition)
+        .then(condition => {
+          if (condition) {
+            out.write(chunk)
+          }
+        })
+      } else if (isPromise(condition)) {
+        promise = condition
+        .then(condition => {
+          if (condition) {
+            out.write(chunk)
+          }
+        })
+      } else if (condition) {
+        out.write(chunk)
+      }
+    })
+    stream.on("end", () => out.end())
+    return out
   }
 }
 
