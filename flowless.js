@@ -246,7 +246,7 @@ const createReduce = generic => (func, prev, enumerable) => {
     }
   }, enumerable)
   if (isPromise(maybePromise)) {
-    return maybePromise.then(prev)
+    return maybePromise.then(() => prev)
   }
   return prev
 }
