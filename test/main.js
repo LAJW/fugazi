@@ -423,6 +423,16 @@ describe("filter", () => {
     })
     .end(done)
   })
+  it("filter stream", done => {
+    Promise.resolve(streamArray([ "1", "2", "3", "4", "5", "6" ]))
+    .then(F.filter(x => (parseInt(x.toString()) + 1) % 2))
+    .then(F.reduce((arr, x) => {
+      arr.push(x.toString())
+      return arr
+    }, [ ]))
+    .then(result => assert.deepEqual(result, [ "2", "4", "6" ]))
+    .then(() => done(), done)
+  })
 })
 
 describe("map", () => {
