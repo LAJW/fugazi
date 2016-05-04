@@ -707,6 +707,18 @@ describe('find', () => {
     const result = F.find(a => a > 5, set)
     assert.strictEqual(result, 7)
   })
+  it("find in stream", done => {
+    Promise.resolve(streamArray([ "1", "2", "3", "4", "5", "6" ]))
+    .then(F.find(x => parseInt(x.toString()) > 2.5))
+    .then(result => assert.strictEqual(result, "3"))
+    .then(() => done(), done)
+  })
+  it("find in stream with async callback", done => {
+    Promise.resolve(streamArray([ "1", "2", "3", "4", "5", "6" ]))
+    .then(F.find(x => Promise.resolve(parseInt(x.toString()) > 2.5)))
+    .then(result => assert.strictEqual(result, "3"))
+    .then(() => done(), done)
+  })
 })
 
 describe("some", () => {
