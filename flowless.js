@@ -396,6 +396,41 @@ const find = {
   enumerable : createFind(generic.enumerable.until),
   map        : createFind(generic.map.until),
   set        : createFind(generic.set.until),
+  stream     : (pred, stream) => new Promise((resolve, reject) => {
+    let promise
+    stream.on("data", chunk => {
+      const condition = pred(chunk)
+      if (promise) {
+        promise = promise
+        .then(() => condition)
+        .then(condition => {
+          if (condition) {
+            stream.pause()
+            resolve(chunk)
+          }
+        })
+      } else if (isPromise(condition)) {
+        promise = condition
+        .then(condition => {
+          if (condition) {
+            stream.pause()
+            resolve(chunk)
+          }
+        })
+      } else if (condition) {
+        stream.pause()
+        resolve(chunk)
+      }
+    })
+    stream.on("end", () => {
+      if (promise) {
+        promise.then(() => resolve())
+      } else {
+        resolve()
+      }
+    })
+    stream.on("error", reject)
+  })
 }
 
 const createSome = generic => (pred, object) => {
