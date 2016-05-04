@@ -330,7 +330,7 @@ describe("forEach", () => {
         } catch (err) {
           done(err)
         }
-      }, 1000)
+      }, 250)
   })
 })
 
