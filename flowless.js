@@ -267,6 +267,31 @@ const map = {
   enumerable : createMap(generic.enumerable),
   set        : createMap(generic.set),
   map        : createMap(generic.map),
+  stream     : (proc, stream) => {
+    const out = generic.stream.create()
+    let promise
+    stream.on("data", chunk => {
+      const result = proc(chunk)
+      if (promise) {
+        promise = promise
+        .then(() => result)
+        .then(result => out.write(result))
+      } else if (isPromise(result)) {
+        promise = result
+        .then(result => out.write(result))
+      } else if (result) {
+        out.write(result)
+      }
+    })
+    stream.on("end", () => {
+      if (promise) {
+        promise.then(() => out.end())
+      } else {
+        out.end()
+      }
+    })
+    return out
+  }
 }
 
 
