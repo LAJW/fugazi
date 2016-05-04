@@ -197,8 +197,8 @@ const filter = {
     stream.on("data", chunk => {
       const condition = pred(chunk)
       if (promise) {
-        promise
-        .then(condition)
+        promise = promise
+        .then(() => condition)
         .then(condition => {
           if (condition) {
             out.write(chunk)
@@ -215,7 +215,13 @@ const filter = {
         out.write(chunk)
       }
     })
-    stream.on("end", () => out.end())
+    stream.on("end", () => {
+      if (promise) {
+        promise.then(() => out.end())
+      } else {
+        out.end()
+      }
+    })
     return out
   }
 }
