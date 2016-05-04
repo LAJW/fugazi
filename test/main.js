@@ -506,6 +506,26 @@ describe("map", () => {
     ])))
     .end(done)
   })
+  it("map stream", done => {
+    Promise.resolve(streamArray([ "1", "2", "3", "4", "5", "6" ]))
+    .then(F.map(x => (parseInt(x.toString()) * 2).toString()))
+    .then(F.reduce((arr, x) => {
+      arr.push(x.toString())
+      return arr
+    }, [ ]))
+    .then(result => assert.deepEqual(result, [ "2", "4", "6", "8", "10", "12" ]))
+    .then(() => done(), done)
+  })
+  it("map stream", done => {
+    Promise.resolve(streamArray([ "1", "2", "3", "4", "5", "6" ]))
+    .then(F.map(x => Promise.resolve((parseInt(x.toString()) * 2).toString())))
+    .then(F.reduce((arr, x) => {
+      arr.push(x.toString())
+      return arr
+    }, [ ]))
+    .then(result => assert.deepEqual(result, [ "2", "4", "6", "8", "10", "12" ]))
+    .then(() => done(), done)
+  })
 })
 
 describe("reduce", () => {
