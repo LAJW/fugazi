@@ -105,3 +105,36 @@ app.get("/", (req, res, next) => {
   )(req) // immediately apply
 })
 ```
+
+# More functions!
+
+`F.match(pattern, target)` - Pattern may be an asynchronous function, array of
+asynchronous functions, regex expression, value, array of values, array of
+constructors, or object with properties containing other matches.
+
+```js
+F.match(Boolean)(true) // true
+F.match({ x : Number, y : Number })({ x : 0, y : 0 }) // true
+F.match([ "one", "two", "three" ])("one") // true
+F.match(/a-z/i)("DankMemes") // true
+```
+
+`F.curry(fn)` alias `F(fn)` - Curry function. If one of supplied arguments is a
+promise, resolve and return final result as a promise.
+
+`F.ifElse(ifFunc1, trueFunc1, [ifFunc2, [trueFunc2, ... [elseFunc)(value)` -
+infinite argument ifElse with asynchronous predicate support.
+
+`F.map(proc, target)` - Curried map function. `proc` may be asynchronous function, target
+can be a stream, `Set`, `Map`, `Array`, function generator or object.
+
+`F.filter(pred, target)` - Curried filter function. `pred` may be asynchronous
+function, or F.match pattern. Operates on all possible object types, just like
+`F.map`.
+
+`F.find(pred, target)` - Curried find function. `pred` may be asynchronous
+function, or F.match pattern. Operates on all possible object types, just like
+`F.map`.
+
+`F.forEach(callback, target)` - Side effect function. Iterate over anything, do
+not synchronize, function always returns undefined. 
