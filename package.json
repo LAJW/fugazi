@@ -1,7 +1,7 @@
 {
   "private": false,
-  "name": "flowless",
-  "version": "0.0.0",
+  "name": "fugazi",
+  "version": "0.1.0",
   "description": "Functional Asynchronous Library",
   "main": "index.js",
   "scripts": {

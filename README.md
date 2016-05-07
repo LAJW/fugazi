@@ -15,11 +15,11 @@ underscore), so use it in conjunction with those.
 
 To use with Node:
 
-    $ npm install f**** --save // name is being chosen
+    $ npm install fugazi --save
 
 Then in your code:
 
-    const F = require("f****")
+    const F = require("fugazi")
 
 # What's different?
 
