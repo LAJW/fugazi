@@ -2,7 +2,8 @@ Asynchronous functional library for Node 5+
 ============================================
 [![Build Status](https://travis-ci.org/LAJW/flowless.svg?branch=master)](https://travis-ci.org/LAJW/flowless)
 [![Coverage Status](https://coveralls.io/repos/github/LAJW/flowless/badge.svg?branch=master)](https://coveralls.io/github/LAJW/flowless?branch=master)
-[![Dependencies](https://david-dm.org/lajw/flowless.svg)](https://david-dm.org/lajw/flowless)
+[![Dependencies](https://david-dm.org/lajw/fugazi.svg)](https://david-dm.org/lajw/fugazi)
+[![devDependency Status](https://david-dm.org/lajw/fugazi/dev-status.svg)](https://david-dm.org/lajw/fugazi#info=devDependencies)
 
 This library removes the need to manually synchronize your code (call `.then`,
 `Promise.all` or `async/await` functions) while keeping the benefits of
@@ -31,7 +32,7 @@ Then in your code:
    - Objects
    - Arrays and other iterables
  - Sync promised arguments while currying
- - Sync promise-returning functions while compoosing
+ - Sync promise-returning functions while composing
  - Support for error catching built into composition function both synchronous
    and asynchronous
  - Variable-length ifElse with synchronization support
