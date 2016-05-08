@@ -1,14 +1,14 @@
 /******************************************************************************/
 /**
  * @file :test/main.js
- * @desc Unit tests for flowless.js
+ * @desc Unit tests for index.js
  * @author Lukasz A.J. Wrona (layv.net)
  * @license MIT
  */
 /******************************************************************************/
 
 "use strict"
-const F           = require("../flowless")
+const F           = require("../index")
 const assert      = require("assert")
 const streamArray = require("stream-array")
 
