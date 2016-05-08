@@ -1,8 +1,8 @@
 {
   "private": false,
   "name": "fugazi",
-  "version": "0.1.0",
-  "description": "Functional Asynchronous Library",
+  "version": "0.1.1",
+  "description": "Functional ramda-like asynchronous library for Node 5.9+",
   "main": "index.js",
   "scripts": {
     "mocha": "node_modules/.bin/mocha",
@@ -18,7 +18,8 @@
   "keywords": [
     "functional",
     "async",
-    "promise"
+    "promise",
+    "ramda"
   ],
   "author": "Lukasz A.J. Wrona (layv.net)",
   "license": "MIT",
