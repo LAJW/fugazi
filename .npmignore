@@ -1,0 +1,5 @@
+test
+.coveralls.yaml
+.eslintrc.js
+.tern-project
+.travis.yml
