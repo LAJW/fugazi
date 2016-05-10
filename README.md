@@ -1,7 +1,7 @@
 Asynchronous functional library for Node 5+
 ============================================
-[![Build Status](https://travis-ci.org/LAJW/flowless.svg?branch=master)](https://travis-ci.org/LAJW/flowless)
-[![Coverage Status](https://coveralls.io/repos/github/LAJW/flowless/badge.svg?branch=master)](https://coveralls.io/github/LAJW/flowless?branch=master)
+[![Build Status](https://travis-ci.org/LAJW/fugazi.svg?branch=master)](https://travis-ci.org/LAJW/fugazi)
+[![Coverage Status](https://coveralls.io/repos/github/LAJW/fugazi/badge.svg?branch=master)](https://coveralls.io/github/LAJW/fugazi?branch=master)
 [![Dependencies](https://david-dm.org/lajw/fugazi.svg)](https://david-dm.org/lajw/fugazi)
 [![devDependency Status](https://david-dm.org/lajw/fugazi/dev-status.svg)](https://david-dm.org/lajw/fugazi#info=devDependencies)
 
