@@ -13,7 +13,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/lajw/flowless.git"
+    "url": "git+https://github.com/lajw/fugazi.git"
   },
   "keywords": [
     "functional",
@@ -24,9 +24,9 @@
   "author": "Lukasz A.J. Wrona (layv.net)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/lajw/flowless/issues"
+    "url": "https://github.com/lajw/fugazi/issues"
   },
-  "homepage": "https://github.com/lajw/flowless#readme",
+  "homepage": "https://github.com/lajw/fugazi#readme",
   "dependencies": {
     "is-stream": "^1.1.0",
     "ramda": "~0.21.0"
