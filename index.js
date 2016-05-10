@@ -16,8 +16,8 @@ const isStream = require("is-stream")
 
 const id = x => x
 
-const isPromise = x => x && x instanceof Promise
 const isFunction = x => x && x instanceof Function
+const isPromise = x => x && isFunction(x.then) && isFunction(x.catch)
 
 // Convert to promise and resolve if needed
 const callThen = func => function () {
