@@ -821,3 +821,14 @@ F.match = match
 F.matchKeys = F((pred, obj) => F.every(F(F.args, 1, F.match(pred)), obj))
 
 F.matchLoose = superMatch(false)
+
+F.and = F.curry((predA, predB, target) => {
+  const conditionA = predA(target)
+  if (conditionA) {
+    const conditionB = predB(target)
+    if (conditionB) {
+      return conditionB
+    }
+  }
+  return false
+})
