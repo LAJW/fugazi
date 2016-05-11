@@ -1052,3 +1052,22 @@ describe("match keys", () => {
     assert.ok(!F.matchKeys(/[a-z]+/)(object))
   })
 })
+
+describe("operators", () => {
+  it("and synchronous => true", () => {
+    const result = F.and(x => x > 0, x => x < 5)(3)
+    assert.strictEqual(result, true)
+  })
+  it("and synchronous => false", () => {
+    const result = F.and(x => x > 0, x => x < 5)(7)
+    assert.strictEqual(result, false)
+  })
+  it("and curried => true", () => {
+    const result = F.and(x => x > 0)(x => x < 5)(3)
+    assert.strictEqual(result, true)
+  })
+  it("and curried => false", () => {
+    const result = F.and(x => x > 0)(x => x < 5)(7)
+    assert.strictEqual(result, false)
+  })
+})
