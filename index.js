@@ -827,6 +827,10 @@ F.and = F.curry((predA, predB, target) => {
   if (conditionA) {
     const conditionB = predB(target)
     if (conditionB) {
+      if (isPromise(conditionA) || isPromise(conditionB)) {
+        return Promise.all([ conditionA, conditionB ])
+        .then(([ condtionA, conditionB ]) => condtionA && conditionB)
+      }
       return conditionB
     }
   }
