@@ -829,7 +829,7 @@ F.and = F.curry((predA, predB, target) => {
     if (conditionB) {
       if (isPromise(conditionA) || isPromise(conditionB)) {
         return Promise.all([ conditionA, conditionB ])
-        .then(([ condtionA, conditionB ]) => condtionA && conditionB)
+        .then(cond => cond[0] && cond[1])
       }
       return conditionB
     }
