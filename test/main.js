@@ -21,6 +21,11 @@ Object.defineProperty(Promise.prototype, 'end', {
   }
 })
 
+const resolve = Promise.resolve
+Object.defineProperty(Promise, 'resolve', () => ({
+  get : () => resolve
+}))
+
 describe("F", () => {
 
   it("enable currying when provided with a single function", () => {
@@ -1069,5 +1074,11 @@ describe("operators", () => {
   it("and curried => false", () => {
     const result = F.and(x => x > 0)(x => x < 5)(7)
     assert.strictEqual(result, false)
+  })
+  it("and asynchronous => true", done => {
+    Promise.resolve()
+    .then(() => F.and(x => x > 0, x => Promise.resolve(x < 5), 3))
+    .then(result => assert.strictEqual(result, true))
+    .then(() => done(), done)
   })
 })
