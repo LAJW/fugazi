@@ -1059,26 +1059,46 @@ describe("match keys", () => {
 })
 
 describe("operators", () => {
-  it("and synchronous => true", () => {
-    const result = F.and(x => x > 0, x => x < 5)(3)
-    assert.strictEqual(result, true)
+  describe("and", () => {
+    it("and synchronous => true", () => {
+      const result = F.and(x => x > 0, x => x < 5)(3)
+      assert.strictEqual(result, true)
+    })
+    it("and synchronous => false", () => {
+      const result = F.and(x => x > 0, x => x < 5)(7)
+      assert.strictEqual(result, false)
+    })
+    it("and curried => true", () => {
+      const result = F.and(x => x > 0)(x => x < 5)(3)
+      assert.strictEqual(result, true)
+    })
+    it("and curried => false", () => {
+      const result = F.and(x => x > 0)(x => x < 5)(7)
+      assert.strictEqual(result, false)
+    })
+    it("and asynchronous => true", done => {
+      Promise.resolve()
+      .then(() => F.and(x => x > 0, x => Promise.resolve(x < 5), 3))
+      .then(result => assert.strictEqual(result, true))
+      .then(() => done(), done)
+    })
   })
-  it("and synchronous => false", () => {
-    const result = F.and(x => x > 0, x => x < 5)(7)
-    assert.strictEqual(result, false)
-  })
-  it("and curried => true", () => {
-    const result = F.and(x => x > 0)(x => x < 5)(3)
-    assert.strictEqual(result, true)
-  })
-  it("and curried => false", () => {
-    const result = F.and(x => x > 0)(x => x < 5)(7)
-    assert.strictEqual(result, false)
-  })
-  it("and asynchronous => true", done => {
-    Promise.resolve()
-    .then(() => F.and(x => x > 0, x => Promise.resolve(x < 5), 3))
-    .then(result => assert.strictEqual(result, true))
-    .then(() => done(), done)
+  describe("or", () => {
+    it("or synchronous => true", () => {
+      const result = F.or(x => x > 5, x => x < 0, -1)
+      assert.strictEqual(result, true)
+    })
+    it("or synchronous => false", () => {
+      const result = F.or(x => x > 5, x => x < 0, 3)
+      assert.strictEqual(result, false)
+    })
+    it("or synchronous curried => true", () => {
+      const result = F.or(x => x > 5)(x => x < 0)(-1)
+      assert.strictEqual(result, true)
+    })
+    it("or synchronous curried => false", () => {
+      const result = F.or(x => x > 5)(x => x < 0)(3)
+      assert.strictEqual(result, false)
+    })
   })
 })
