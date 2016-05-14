@@ -836,3 +836,7 @@ F.and = F.curry((predA, predB, target) => {
   }
   return false
 })
+
+F.or = F.curry((predA, predB, target) => {
+  return predA(target) || predB(target)
+})
