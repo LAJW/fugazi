@@ -855,3 +855,7 @@ F.or = F.curry((predA, predB, target) => {
     return predB(target)
   }
 })
+
+F.not = value => isPromise(value)
+                 ? value.then(value => !value)
+                 : !value
