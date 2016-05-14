@@ -1100,5 +1100,17 @@ describe("operators", () => {
       const result = F.or(x => x > 5)(x => x < 0)(3)
       assert.strictEqual(result, false)
     })
+    it("or asynchronous => true", done => {
+      Promise.resolve()
+      .then(() => F.or(x => x > 5, x => Promise.resolve(x < 0), -1))
+      .then(result => assert.strictEqual(result, true))
+      .then(() => done(), done)
+    })
+    it("or asynchronous => false", done => {
+      Promise.resolve()
+      .then(() => F.or(x => x > 5, x => Promise.resolve(x < 0), 3))
+      .then(result => assert.strictEqual(result, false))
+      .then(() => done(), done)
+    })
   })
 })
