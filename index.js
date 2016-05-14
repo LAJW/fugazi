@@ -838,5 +838,20 @@ F.and = F.curry((predA, predB, target) => {
 })
 
 F.or = F.curry((predA, predB, target) => {
-  return predA(target) || predB(target)
+  const conditionA = predA(target)
+  if (isPromise(conditionA)) {
+    const conditionB = predB(target)
+    if (isPromise(conditionB)) {
+      return Promise.all([ conditionA, conditionB ])
+      .then(conds => conds[0] || conds[1])
+    } else if (conditionB) {
+      return conditionB
+    } else {
+      return conditionA
+    }
+  } else if (conditionA) {
+    return conditionA
+  } else {
+    return predB(target)
+  }
 })
