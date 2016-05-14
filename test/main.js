@@ -1113,4 +1113,16 @@ describe("operators", () => {
       .then(() => done(), done)
     })
   })
+  describe("not", () => {
+    it("synchronous", () => {
+      const result = F.not(false)
+      assert.strictEqual(result, true)
+    })
+    it("asynchronous", done => {
+      Promise.resolve()
+      .then(() => F.not(Promise.resolve(false)))
+      .then(result => assert.strictEqual(result, true))
+      .then(() => done(), done)
+    })
+  })
 })
