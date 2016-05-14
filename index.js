@@ -18,6 +18,7 @@ const id = x => x
 
 const isFunction = x => x && x instanceof Function
 const isPromise = x => x && isFunction(x.then) && isFunction(x.catch)
+const isIterable = x => x && x[Symbol.iterator]
 
 // Convert to promise and resolve if needed
 const callThen = func => function () {
@@ -125,7 +126,7 @@ const deref = (alg, target, args) => {
     return alg.set(...args)
   } else if (target instanceof Map) {
     return alg.map(...args)
-  } else if (target[Symbol.iterator]) {
+  } else if (isIterable(target)) {
     return alg.iterable(...args)
   } else if (isStream(target)) {
     return alg.stream(...args)
@@ -859,3 +860,5 @@ F.or = F.curry((predA, predB, target) => {
 F.not = value => isPromise(value)
                  ? value.then(value => !value)
                  : !value
+
+F.sync = F.map(x => x)
