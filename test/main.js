@@ -1126,3 +1126,24 @@ describe("operators", () => {
     })
   })
 })
+
+describe("sync", () => {
+  it("should pass non-promise values unchanged", done => {
+    Promise.resolve()
+    .then(() => F.sync([ "one", "two" ]))
+    .then(result => assert.deepEqual(result, [ "one", "two" ]))
+    .then(() => done(), done)
+  })
+  it("should convert array of promises into a promise resolving to array of values", done => {
+    Promise.resolve()
+    .then(() => F.sync([ Promise.resolve("one"), Promise.resolve("two") ]))
+    .then(result => assert.deepEqual(result, [ "one", "two" ]))
+    .then(() => done(), done)
+  })
+  it("should convert object literal containing promises into a promise resolving to object literal of values", done => {
+    Promise.resolve()
+    .then(() => F.sync([ Promise.resolve("one"), Promise.resolve("two") ]))
+    .then(result => assert.deepEqual(result, [ "one", "two" ]))
+    .then(() => done(), done)
+  })
+})
