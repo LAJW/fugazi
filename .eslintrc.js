@@ -59,7 +59,7 @@ module.exports = {
         ],
         "dot-notation": "error",
         "eol-last": "error",
-        "eqeqeq": "error",
+        "eqeqeq": "off",
         "func-names": "off",
         "func-style": "off",
         "generator-star-spacing": "off",
