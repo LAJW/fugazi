@@ -438,6 +438,27 @@ describe("filter", () => {
     .then(result => assert.deepEqual(result, [ "2", "4", "6" ]))
     .then(() => done(), done)
   })
+  it("re-throw stream filter error", done => {
+    const object = { }
+    Promise.resolve(streamArray([ "1", "2", "3", "4", "5", "6" ]))
+    .then(F.filter(x => {
+      if (parseInt(x) > 4) {
+        throw object
+      }
+      return x
+    }))
+    .then(F.reduce((arr, x) => {
+      arr.push(x.toString())
+      return arr
+    }, [ ]))
+    .then(() => done(new Error("Should have thrown")),
+          error => {
+            assert.strictEqual(error, object)
+            done()
+          }
+    )
+    .catch(done)
+  })
   it("filter async callback", done => {
     Promise.resolve(streamArray([ "1", "2", "3", "4", "5", "6" ]))
     .then(F.filter(x => Promise.resolve((parseInt(x.toString()) + 1) % 2)))
