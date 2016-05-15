@@ -863,6 +863,10 @@ F.not = value => isPromise(value)
 
 F.eq = F.curry((a, b) => a === b)
 F.eqv = F.curry((a, b) => a == b)
+F.lt = F.curry((a, b) => b < a)
+F.lte = F.curry((a, b) => b <= a)
+F.gt = F.curry((a, b) => b > a)
+F.gte = F.curry((a, b) => b >= a)
 
 F.sync = F.map(x => x)
 
