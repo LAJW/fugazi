@@ -861,7 +861,8 @@ F.not = value => isPromise(value)
                  ? value.then(value => !value)
                  : !value
 
-F.eq = F.curry((a, b) => a == b)
+F.eq = F.curry((a, b) => a === b)
+F.eqv = F.curry((a, b) => a == b)
 
 F.sync = F.map(x => x)
 
