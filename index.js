@@ -862,3 +862,5 @@ F.not = value => isPromise(value)
                  : !value
 
 F.sync = F.map(x => x)
+
+F.id = x => x
