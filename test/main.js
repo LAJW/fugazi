@@ -1147,3 +1147,11 @@ describe("sync", () => {
     .then(() => done(), done)
   })
 })
+
+describe("id", () => {
+  it("should pass value unchanged", () => {
+    const object = { }
+    const result = F.id(object)
+    assert.strictEqual(result, object)
+  })
+})
