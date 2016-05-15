@@ -194,34 +194,24 @@ const filter = {
   },
   stream : (pred, stream) => {
     const out = generic.stream.create()
-    let promise
+    let promise = Promise.resolve()
+    let finished = false
     stream.on("data", chunk => {
-      const condition = pred(chunk)
-      if (promise) {
-        promise = promise
-        .then(() => condition)
-        .then(condition => {
-          if (condition) {
-            out.write(chunk)
-          }
-        })
-      } else if (isPromise(condition)) {
-        promise = condition
-        .then(condition => {
-          if (condition) {
-            out.write(chunk)
-          }
-        })
-      } else if (condition) {
-        out.write(chunk)
-      }
+      promise = promise
+      .then(() => pred(chunk))
+      .then(condition => {
+        if (condition && !finished) {
+          out.write(chunk)
+        }
+      })
+      .catch(err => {
+        stream.pause()
+        out.end(err)
+        finished = true
+      })
     })
     stream.on("end", () => {
-      if (promise) {
-        promise.then(() => out.end())
-      } else {
-        out.end()
-      }
+      promise.then(() => out.end())
     })
     return out
   }
