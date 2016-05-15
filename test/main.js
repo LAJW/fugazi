@@ -1127,8 +1127,12 @@ describe("operators", () => {
   })
   describe("eq", () => {
     it("synchronous => true", () => {
-      const result = F.eq(1, "1")
+      const result = F.eq(1, 1)
       assert.strictEqual(result, true)
+    })
+    it("synchronous => true", () => {
+      const result = F.eq(1, "1")
+      assert.strictEqual(result, false)
     })
     it("synchronous => false", () => {
       const result = F.eq(1, 2)
@@ -1136,13 +1140,35 @@ describe("operators", () => {
     })
     it("asynchronous => true", done => {
       Promise.resolve()
-      .then(F.eq(Promise.resolve(1), Promise.resolve(2)))
+      .then(() => F.eq(Promise.resolve(1), Promise.resolve(1)))
       .then(result => assert.strictEqual(result, true))
       .then(() => done(), done)
     })
     it("asynchronous => false", done => {
       Promise.resolve()
-      .then(F.eq(Promise.resolve(1), Promise.resolve(true)))
+      .then(() => F.eq(Promise.resolve(1), Promise.resolve("1")))
+      .then(result => assert.strictEqual(result, false))
+      .then(() => done(), done)
+    })
+  })
+  describe("eqv", () => {
+    it("synchronous => true", () => {
+      const result = F.eqv(1, "1")
+      assert.strictEqual(result, true)
+    })
+    it("synchronous => false", () => {
+      const result = F.eqv(1, 2)
+      assert.strictEqual(result, false)
+    })
+    it("asynchronous => true", done => {
+      Promise.resolve()
+      .then(() => F.eqv(Promise.resolve(1), Promise.resolve(true)))
+      .then(result => assert.strictEqual(result, true))
+      .then(() => done(), done)
+    })
+    it("asynchronous => false", done => {
+      Promise.resolve()
+      .then(() => F.eqv(Promise.resolve(1), Promise.resolve(2)))
       .then(result => assert.strictEqual(result, false))
       .then(() => done(), done)
     })
