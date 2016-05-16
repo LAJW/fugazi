@@ -606,6 +606,16 @@ describe("reduce", () => {
     .then(result => assert.strictEqual(result, 15))
     .then(() => done(), done)
   })
+  it("reject if reductor rejects", done => {
+    const object = {}
+    Promise.resolve(streamArray([ 1, 2, 5, 7 ]))
+    .then(F.reduce(() => Promise.reject(object), ""))
+    .then(() => done(new Error("Should have rejected")), result => {
+      assert.strictEqual(result, object)
+      done()
+    })
+    .catch(done)
+  })
 })
 
 describe('find', () => {
