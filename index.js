@@ -206,7 +206,7 @@ const filter = {
       })
       .catch(err => {
         stream.pause()
-        out.end(err)
+        out.emit("error", err)
         finished = true
       })
     })
