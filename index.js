@@ -863,3 +863,5 @@ F.sync = F.map(x => x)
 F.id = x => x
 
 F.F = (...args) => (...funcs) => F.compose(...funcs)(...args)
+
+F._ = R._
