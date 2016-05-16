@@ -862,6 +862,12 @@ F.sync = F.map(x => x)
 
 F.id = x => x
 
-F.F = (...args) => (...funcs) => F.compose(...funcs)(...args)
+F.F = function () {
+  const args = arguments
+  return function () {
+    const funcs = arguments
+    return F.compose(...funcs)(...args)
+  }
+}
 
 F._ = R._
