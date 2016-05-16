@@ -861,3 +861,5 @@ F.gte = F.curry((a, b) => b >= a)
 F.sync = F.map(x => x)
 
 F.id = x => x
+
+F.F = (...args) => (...funcs) => F.compose(...funcs)(...args)
