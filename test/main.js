@@ -1234,3 +1234,13 @@ describe("id", () => {
     assert.strictEqual(result, object)
   })
 })
+
+describe("F.F", () => {
+  it("compose and immediately apply", () => {
+    const result = F.F(1, 2, 3)(
+      (x, y, z) => x + y + z,
+      x => x * 2
+    )
+    assert.strictEqual(result, 12)
+  })
+})
