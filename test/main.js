@@ -1066,6 +1066,15 @@ describe("match loose", () => {
       }
     })(object))
   })
+  it("make properties optional with undefined", () => {
+    const object = {
+      x : 16,
+    }
+    assert.strictEqual(F.match({
+      x : [ Number, undefined ],
+      y : [ Number, undefined ],
+    })(object), true)
+  })
 })
 
 describe("match keys", () => {
