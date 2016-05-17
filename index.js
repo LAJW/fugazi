@@ -461,42 +461,42 @@ const F = module.exports = callThen(function(a1) {
 })
 
 const superMatch = strict => pred => {
-  if (pred instanceof Function) {
-    if (pred === Boolean) {
-      return value => typeof value === "boolean"
-    } else if (pred === Number) {
-      return value => typeof value === "number"
-    } else if (pred === String) {
-      return value => typeof value === "string"
-    } else if (pred.prototype === id.prototype) {
-      return value => pred(value)
-    } else {
-      return value => value && value instanceof pred
-    }
-  } else if (pred instanceof RegExp) {
-    return value => pred.test(value)
-  } else if (pred instanceof Array) {
-    const possible = pred.map(superMatch(strict))
-    return value => F.some(pred => pred(value), possible)
-  } else if (pred instanceof Object) {
-    const subMatches = map.enumerable(superMatch(strict), pred)
-    if (strict) {
-      const subMatchesLength = Object.keys(subMatches).length
-      return value => {
-        if (!value || !(value instanceof Object)
-            || Object.keys(value).length !== subMatchesLength) {
-          return false
-        }
-        return F.every((subMatch, key) => subMatch(value[key]), subMatches)
+  if (pred) {
+    if (pred instanceof Function) {
+      if (pred === Boolean) {
+        return value => typeof value === "boolean"
+      } else if (pred === Number) {
+        return value => typeof value === "number"
+      } else if (pred === String) {
+        return value => typeof value === "string"
+      } else if (pred.prototype === id.prototype) {
+        return value => pred(value)
+      } else {
+        return value => value && value instanceof pred
       }
-    } else {
-      return value => value
-      && value instanceof Object
-      && F.every((subMatch, key) => subMatch(value[key]), subMatches)
+    } else if (pred instanceof RegExp) {
+      return value => pred.test(value)
+    } else if (pred instanceof Array) {
+      const possible = pred.map(superMatch(strict))
+      return value => F.some(pred => pred(value), possible)
+    } else if (pred instanceof Object) {
+      const subMatches = map.enumerable(superMatch(strict), pred)
+      if (strict) {
+        return value => {
+          if (!value || !(value instanceof Object)
+              || Object.keys(value).length > Object.keys(subMatches).length) {
+            return false
+          }
+          return F.every((subMatch, key) => subMatch(value[key]), subMatches)
+        }
+      } else {
+        return value => value
+        && value instanceof Object
+        && F.every((subMatch, key) => subMatch(value[key]), subMatches)
+      }
     }
-  } else {
-    return value => value === pred
   }
+  return value => value === pred
 }
 
 const match = superMatch(true)
