@@ -770,6 +770,18 @@ describe('find', () => {
     .then(result => assert.strictEqual(result, "3"))
     .then(() => done(), done)
   })
+  it("error handling in stream find", done => {
+    const object = { }
+    Promise.resolve(streamArray([ "1", "2", "3", "4", "5", "6" ]))
+    .then(F.find(() => Promise.reject(object)))
+    .then(result => assert.strictEqual(result, "3"))
+    .then(() => done(new Error("Should have rejected")))
+    .catch(err => {
+      assert.strictEqual(err, object)
+      done()
+    })
+    .catch(done)
+  })
 })
 
 describe("some", () => {
