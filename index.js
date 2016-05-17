@@ -380,37 +380,23 @@ const find = {
   map        : createFind(generic.map.until),
   set        : createFind(generic.set.until),
   stream     : (pred, stream) => new Promise((resolve, reject) => {
-    let promise
+    let promise = Promise.resolve()
     stream.on("data", chunk => {
-      const condition = pred(chunk)
-      if (promise) {
-        promise = promise
-        .then(() => condition)
-        .then(condition => {
-          if (condition) {
-            stream.pause()
-            resolve(chunk)
-          }
-        })
-      } else if (isPromise(condition)) {
-        promise = condition
-        .then(condition => {
-          if (condition) {
-            stream.pause()
-            resolve(chunk)
-          }
-        })
-      } else if (condition) {
+      promise = promise
+      .then(() => pred(chunk))
+      .then(condition => {
+        if (condition) {
+          stream.pause()
+          resolve(chunk)
+        }
+      })
+      .catch(err => {
         stream.pause()
-        resolve(chunk)
-      }
+        reject(err)
+      })
     })
     stream.on("end", () => {
-      if (promise) {
-        promise.then(() => resolve())
-      } else {
-        resolve()
-      }
+      promise.then(() => resolve(undefined))
     })
     stream.on("error", reject)
   })
