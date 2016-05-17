@@ -849,3 +849,8 @@ F.F = function () {
 }
 
 F._ = R._
+
+F.resolver = x => () => x
+F.rejector = x => () => {
+  throw x
+}
