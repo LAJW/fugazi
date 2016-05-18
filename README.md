@@ -39,9 +39,9 @@ Then in your code:
  - Versatile matching function built into find, filter and ifElse
  - Forward currying! (I like ramda, but can't read backwards)
 
-# Examples
+# Quick Start
 
-Let's see it in action!
+For full documentation, go here: [DOCUMENTATION](https://github.com/LAJW/fugazi/blob/master/DOCS.md)
 
 ## Stream reduce 
 
