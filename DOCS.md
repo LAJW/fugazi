@@ -122,7 +122,8 @@ validate({
 
 ```
 
-Since F.match may or may not return a promise (depending on predicates and values), it's best to use it within F.
+Since F.match may or may not return a promise (depending on predicates and
+values), it's best to use it within F.
 
 ```
 F(
@@ -132,6 +133,83 @@ F(
   ...
 )
 ```
+
+## F.ifElse
+
+`pattern, value, pattern, value... -> target -> value`
+
+This function creates a function that will test target against one or more
+*patterns* (look F.match *pattern*). If pattern matches, it will return
+corresponding value or execute this value (if value is a function) with target
+as this function's argument. Patterns and values can be asynchronous (returned
+through promise). If that's the case, function will also resolve through
+promise.
+
+### Examples
+
+Absolute - standard 3-way `if ... then ... else`
+```js
+const abs = F.ifElse(
+  F.gt(0),  // pattern - in this case a function: is greater than 0
+  F.id,     // trueValue - identity x => x function
+  x => -x   // elseValue - x * -1
+)
+
+abs(15) // returns 15
+abs(-15) // returns 15
+```
+
+Signum - 5-way `if ... then ... elseif ... then`
+```js
+const abs = F.ifElse(
+  F.gt(0),  // pattern #1
+  1,        // trueValue #1 - does not have to be a function
+
+  F.lt(0),  // pattern #2 is x negative
+  -1,       // trueValue #2
+
+  0         // else value
+)
+
+sgn(5) // returns 1
+sgn(-5) // returns -1
+sgn(0) // returns 0
+```
+
+Optional else value (3rd, 5th, 7th argument) - Safe parameter extraction (don't
+throw exception, rather return undefined when obtaining parameter's value)
+
+```js
+const param = key => F.ifElse(
+  F.id,                 // if (object)
+  object => object[key] // then
+)                       // else is optional, will return undefined
+
+param("foo")({ foo : "bar" }) // returns "bar"
+param("Foo")(null)            // returns undefined
+```
+
+Asynchronous patterns - quick authentication. We'll check if http request's
+token can be found inside our database.
+```js
+// somewhere in the depths of your express app
+app.use('/', (req, res, next) => {
+  F.F(req)( // immediately invoke following asynchronous function composition
+    F.ifElse(
+      req => Token.findById(req.headers.apikey), // Sequelize model returning
+                                                 // Bluebird promise
+      F.id,                                      // return request on success
+      F.rejector(new Error("Token is invalid"))  // throw exception otherwise
+    )(req),
+    // your code
+    // ...
+    //
+    F.catch(err => /* function implementing error handlilng */),
+    next // continue
+  )
+})
+```
+
 
 ## F.resolver
 
