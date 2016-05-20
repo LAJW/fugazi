@@ -210,6 +210,71 @@ app.use('/', (req, res, next) => {
 })
 ```
 
+## F.map
+
+(Added in 0.1.0)
+
+`(value key container -> value) -> container -> result`
+
+This function transforms container. The container can be one of the following:
+
+ - Array
+ - String
+ - Object literal (enumerable)
+ - Fucntion generator (iterable)
+ - ES6 Set
+ - ES6 Map
+ - Node stream (special case).
+
+Each overload behaves differently depending on container type and whether or
+not transformation function is synchronous or not (returns promise).
+
+ - If transformation function returns promise result will also be resolved
+   through promise (automatic `Promise.all`). 
+ - If transformation function is asynchronous, order of execution may be out of
+   sequence (parallel mapping).
+ - If container is an array-like or function generator, order of elements will
+   be preserved.
+ - Streams are never mapped in parallel
+ - Mapping over array-like or function generator returns an array
+
+### Examples
+
+Synchronous mapping
+
+```js
+const add1 = F.map(x => x + 1)
+
+add1([ 1, 2, 3, 4 ]) // returns [ 2, 3, 4, 5 ]
+add1({ one : 1, two : 2 }) // returns { one : 2, two : 3 }
+add1(F.range(0, 4)) // function generator - returns [ 1, 2, 3, 4 ]
+add1(new Set([ 1, 2, 3, 4 ])) // returns Set{ 2, 3, 4, 5 }
+```
+
+Asynchronous mapping - Promise.resolve returns a promise to supplied value. In
+order to synchronize you'd normally have to call Promise.all (or destructure
+depending on whether this is a `Map`, `Object` or `Set`, etc.). With `F.map`
+you don't have to remember about that - function automatically synchronizes if
+at leasto one transformation result is a promise.
+
+```js
+const add1 = F.map(x => Promise.resolve(x + 1))
+
+add1([ 1, 2, 3, 4 ])
+.then(result => { /* result is an array [ 1, 2, 3, 4 ] */ })
+```
+
+Map over stream
+
+```js
+const shout = F.map(str => str.toUppercase())
+
+const readStream = fs.createReadStream('lipsum.txt')
+const writeStream = fs.createWriteStream('shouted-lipsum.txt')
+
+shout(readStream)     // shout returns a stream, which can be piped into your
+.pipe(writeStream)    // output of choice using minimum amount of memory
+```
 
 ## F.resolver
 
