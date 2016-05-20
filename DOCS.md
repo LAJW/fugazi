@@ -1,6 +1,20 @@
 Fugazi - Documentation
 ================================================================================
 
+# Basics
+
+If you're complete novice in functional JavaScript or functional programming in
+general and everything you see here looks alien to you, you should skim this
+first: https://github.com/MostlyAdequate/mostly-adequate-guide
+
+Otherwise the following are the functions that you should understand first,
+because the rest of this library follows similar pattern.
+
+It's all about removing need for manual synchronizing (Promises), error
+handling (custom monads, try/catch), automating type-detection (lots of
+overloads), algorithm/container separation and being mostly functional all the
+way through.
+
 ## F.match
 
 (Added in 0.1.0)
@@ -122,7 +136,7 @@ validate({
 
 ```
 
-Since F.match may or may not return a promise (depending on predicates and
+Since `F.match` may or may not return a promise (depending on predicates and
 values), it's best to use it within F.
 
 ```
@@ -139,7 +153,7 @@ F(
 `pattern, value, pattern, value... -> target -> value`
 
 This function creates a function that will test target against one or more
-*patterns* (look F.match *pattern*). If pattern matches, it will return
+*patterns* (look `F.match` *pattern*). If pattern matches, it will return
 corresponding value or execute this value (if value is a function) with target
 as this function's argument. Patterns and values can be asynchronous (returned
 through promise). If that's the case, function will also resolve through
@@ -245,14 +259,14 @@ Synchronous mapping
 ```js
 const add1 = F.map(x => x + 1)
 
-add1([ 1, 2, 3, 4 ]) // returns [ 2, 3, 4, 5 ]
-add1({ one : 1, two : 2 }) // returns { one : 2, two : 3 }
-add1(F.range(0, 4)) // function generator - returns [ 1, 2, 3, 4 ]
+add1([ 1, 2, 3, 4 ])          // returns [ 2, 3, 4, 5 ]
+add1({ one : 1, two : 2 })    // returns { one : 2, two : 3 }
+add1(F.range(0, 4))           // function generator - returns [ 1, 2, 3, 4 ]
 add1(new Set([ 1, 2, 3, 4 ])) // returns Set{ 2, 3, 4, 5 }
 ```
 
-Asynchronous mapping - Promise.resolve returns a promise to supplied value. In
-order to synchronize you'd normally have to call Promise.all (or destructure
+Asynchronous mapping - `Promise.resolve` returns a promise to supplied value. In
+order to synchronize you'd normally have to call `Promise.all` (or destructure
 depending on whether this is a `Map`, `Object` or `Set`, etc.). With `F.map`
 you don't have to remember about that - function automatically synchronizes if
 at leasto one transformation result is a promise.
@@ -261,7 +275,7 @@ at leasto one transformation result is a promise.
 const add1 = F.map(x => Promise.resolve(x + 1))
 
 add1([ 1, 2, 3, 4 ])
-.then(result => { /* result is an array [ 1, 2, 3, 4 ] */ })
+.then(result => { /* result is an array [ 2, 3, 4, 5 ] */ })
 ```
 
 Map over stream
