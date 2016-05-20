@@ -15,6 +15,97 @@ handling (custom monads, try/catch), automating type-detection (lots of
 overloads), algorithm/container separation and being mostly functional all the
 way through.
 
+## F
+
+(Added in 0.1.0)
+
+All-in-one namespace, function composition, currying and parameter extraction.
+If functions or parameters are asynchronous (resolved through `Promise`) the
+end result will also be a promise.
+
+It also has built-in error-handling and monadic properties (compose with
+`F.catch`) so read on.
+
+### Examples
+
+Currying
+
+```js
+const F = require("fugazi")
+
+const add = F((a, b) => a + b)
+const add1 = add(1) // partial function application
+add1(3)             // returns 4
+```
+
+Composition - left-to-right
+
+```js
+const add1Mul2 = F(
+  x => x + 1,
+  x => x * 2
+)
+
+add1Mul2(5) // returns 12
+```
+
+Safe parameter extraction
+
+```js
+const getId = F("id")
+getId({ id : "Foo" }) // returns "Foo"
+getId(null)           // returns undefined
+
+const getParamsId = F("params", "id") // can be composed
+getParamsId({
+  params : {
+    id : "Bar"
+  }
+}) // returns "Bar"
+```
+
+Auto-sync
+
+```js
+F(
+  () => Promise.resolve(15),   // returns promise
+  x => Promise.resolve(x * 2), // we don't have to synchronize!
+  x => x + 2
+)().then(value => {
+  // value is 32
+})
+```
+
+Error-handling
+
+```js
+F(
+  () => {
+    throw "Foo"       // throw a value
+  },
+  () => {
+    return "Bar"      // exception is thrown, so this function is not executed
+  },
+  F.catch(val => val) // catch exception and return a value
+)()                   // Immeidate invocation - returns "Foo", no try/catch
+                      // required
+```
+
+Unified asynchronous error handling
+
+```js
+F(
+  () => Promise.reject("Foo"),  // Promise rejecting with "Foo"
+
+  () => Promise.resolve("Bar"), // never executed, because previous function
+                                // rejected
+  F.catch(val => val)           // same as above, this also catches asynchronous
+                                // and returns them
+)().then(value => {             // Immediate invocation, returns promise
+  // value === "Foo"
+})
+```
+
 ## F.match
 
 (Added in 0.1.0)
