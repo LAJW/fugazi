@@ -84,9 +84,9 @@ F(
     throw "Foo"       // throw a value
   },
   () => {
-    return "Bar"      // exception is thrown, so this function is not executed
+    return "Bar"      // skip - exception was thrown
   },
-  F.catch(val => val) // catch exception and return a value
+  F.catch(val => val) // catch and return thrown "Foo"
 )()                   // Immeidate invocation - returns "Foo", no try/catch
                       // required
 ```
@@ -380,6 +380,102 @@ const writeStream = fs.createWriteStream('shouted-lipsum.txt')
 shout(readStream)     // shout returns a stream, which can be piped into your
 .pipe(writeStream)    // output of choice using minimum amount of memory
 ```
+
+# Algorithms
+
+## F.forEach
+
+*(Added in 0.1.0)*
+
+`( value key container -> undefined ) -> container -> undefined`
+
+## F.reduce
+
+*(Added in 0.1.0)*
+
+`( sum value key container -> sum ) -> sum -> container -> sum`
+
+## F.filter
+
+*(Added in 0.1.0)*
+
+`( value key container -> boolean ) -> container -> container`
+
+## F.find
+
+*(Added in 0.1.0)*
+
+`( value key container -> boolean ) -> container -> value`
+
+## F.some
+
+*(Added in 0.1.0)*
+
+`( value key container -> boolean ) -> container -> boolean`
+
+## F.every
+
+*(Added in 0.1.0)*
+
+`( value key container -> boolean ) -> container -> boolean`
+
+# Logic
+
+## F.and
+
+*(Added in 0.3.0)*
+
+`(target -> boolean) -> (target -> boolean) -> target -> boolean`
+
+## F.or
+
+*(Added in 0.3.0)*
+
+`(target -> boolean) -> (target -> boolean) -> target -> boolean`
+
+## F.gt
+
+*(Added in 0.3.0)*
+
+`number -> number -> boolean`
+
+## F.gte
+
+*(Added in 0.3.0)*
+
+`number -> number -> boolean`
+
+## F.lt
+
+*(Added in 0.3.0)*
+
+`number -> number -> boolean`
+
+## F.lte
+
+*(Added in 0.3.0)*
+
+`number -> number -> boolean`
+
+## F.eq
+
+*(Added in 0.3.0)*
+
+`object -> object -> boolean`
+
+Are two objects equal (`===` operator). If one of the objects is a promise,
+first resolves that promise and then compares resolving result through promise.
+
+## F.eqv
+
+*(Added in 0.3.0)*
+
+`object -> object -> boolean`
+
+Are two objects equivalent (`==` operator). If one of the objects is a promise,
+first resolves that promise and then compares resolving result through promise.
+
+# Utilities
 
 ## F.resolver
 
