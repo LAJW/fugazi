@@ -455,7 +455,21 @@ parallel
 Return true if all of container's values match the pattern. Pattern may be a
 function or `F.match` pattern. Asynchronous patterns are resolved in parallel.
 
+## F.sync
+
+*(Added in 0.3.0)*
+
+`container -> container`
+
+Synchronize values of the container.
+
 # Logic
+
+## F.not
+
+*(Added in 0.3.0)*
+
+`target -> boolean`
 
 ## F.and
 
@@ -515,7 +529,7 @@ first resolves that promise and then compares resolving result through promise.
 
 ## F.resolver
 
-(Added in 0.3.0)
+*(Added in 0.3.0)*
 
 `value -> ignored -> value`
 
@@ -531,7 +545,7 @@ F.F()(
 
 ## F.rejector
 
-(Added in 0.3.0)
+*(Added in 0.3.0)*
 
 `value -> ignored -> throw value`
 
@@ -545,3 +559,64 @@ F.F()(
   F.catch(F.id),
   console.log // logs "Foo"
 )
+
+## F.id
+
+*(Added in 0.3.0)*
+
+`value -> value`
+
+Identity function. Returns supplied value. For use in callbacks.
+
+## F.F
+
+*(Added in 0.3.0)*
+
+`...arguments -> ...functions -> result`
+
+Compose functions left-to-right and immediately execute this composition with
+provided arguments.
+
+## F._
+
+*(Added in 0.3.0)*
+
+Argument placeholder for curried functions.
+
+## F.matchLoose
+
+*(Added in 0.2.0)*
+
+`pattern -> target`
+
+Works just like match to `F.match`, but doesnt't check extra properties in
+Object literals.
+
+## F.matchKeys
+
+*(Added in 0.2.0)*
+
+`pattern -> container`
+
+Returns true if all keys of container match supplied pattern. Pattern may be a
+function or `F.match` pattern.
+
+## F.curry
+
+*(Added in 0.1.0)*
+
+`F` Without composition overload
+
+## F.curryN
+
+*(Added in 0.1.0)*
+
+`N -> func -> arg1 -> arg2 ... -> argN`
+
+Use if regular compose fails to detect number of function arguments.
+
+## F.compose
+
+*(Added in 0.1.0)*
+
+`F` Without curry overload
