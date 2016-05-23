@@ -383,11 +383,20 @@ shout(readStream)     // shout returns a stream, which can be piped into your
 
 # Algorithms
 
+Container algorithms are based around F.map. They all accept iterables,
+enumerable objects, streams and asynchronous callbacks. In case of asynchronous
+callbacks, they may be executed out of order, so It's best not to trigger any
+side effects.
+
 ## F.forEach
 
 *(Added in 0.1.0)*
 
 `( value key container -> undefined ) -> container -> undefined`
+
+Iterate over every value of the container. Side effect function. Unlike other
+algorithms, does not synchronize - executes callbacks as fast possible and
+returns `undefined`. Asynchronous callbacks may be executed out of order.
 
 ## F.reduce
 
@@ -395,11 +404,22 @@ shout(readStream)     // shout returns a stream, which can be piped into your
 
 `( sum value key container -> sum ) -> sum -> container -> sum`
 
+Reduce any container to a sum. Sum is the state shared between iterations.
+Asynchronous callbacks are always executed in the order of elements in the
+original container. Synchronizes stream and returns promise resolving to sum.
+
 ## F.filter
 
 *(Added in 0.1.0)*
 
 `( value key container -> boolean ) -> container -> container`
+
+`pattern -> container -> container`
+
+Create copy of a container with values matching the pattern. Pattern may
+either be a function returning boolean or a `F.match` pattern. Pattern may be
+asynchronous - in that case end container will be returned through promise. In
+case of a stream - filtering stream will be reduced.
 
 ## F.find
 
@@ -407,17 +427,33 @@ shout(readStream)     // shout returns a stream, which can be piped into your
 
 `( value key container -> boolean ) -> container -> value`
 
+`pattern -> container -> value`
+
+Find first value of container matching pattern. Pattern may be a function or
+`F.match` pattern. If used with `Map`, `Set` or `Object` and asynchronous
+pattern patterns will be resolved in parallel. If you care about ordering you
+should convert container to `Array` first.
+
 ## F.some
 
 *(Added in 0.1.0)*
 
 `( value key container -> boolean ) -> container -> boolean`
 
+`pattern -> container -> boolean`
+
+Return true if at least one of container's values matches the pattern. Pattern
+may be a function or `F.match` pattern. Asynchronous patterns are resolved in
+parallel
+
 ## F.every
 
 *(Added in 0.1.0)*
 
 `( value key container -> boolean ) -> container -> boolean`
+
+Return true if all of container's values match the pattern. Pattern may be a
+function or `F.match` pattern. Asynchronous patterns are resolved in parallel.
 
 # Logic
 
