@@ -791,7 +791,9 @@ F.matchKeys = F((pred, obj) => F.every(F(F.args, 1, F.match(pred)), obj))
 
 F.matchLoose = superMatch(false)
 
-F.and = F.curry((predA, predB, target) => {
+F.and = F.curry((_predA, _predB, target) => {
+  const predA = F.match(_predA)
+  const predB = F.match(_predB)
   const conditionA = predA(target)
   if (conditionA) {
     const conditionB = predB(target)
