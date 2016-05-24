@@ -806,7 +806,9 @@ F.and = F.curry((predA, predB, target) => {
   return false
 })
 
-F.or = F.curry((predA, predB, target) => {
+F.or = F.curry((_predA, _predB, target) => {
+  const predA = F.match(_predA)
+  const predB = F.match(_predB)
   const conditionA = predA(target)
   if (isPromise(conditionA)) {
     const conditionB = predB(target)
