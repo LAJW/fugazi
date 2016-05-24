@@ -471,17 +471,36 @@ Synchronize values of the container.
 
 `target -> boolean`
 
+Negate target. Target may be a promise. If that's the case resolve promise and
+return promise to negated value.
+
 ## F.and
 
 *(Added in 0.3.0)*
 
 `(target -> boolean) -> (target -> boolean) -> target -> boolean`
 
+*(Added in 0.4.0)*
+
+`pattern -> pattern -> target -> boolean`
+
+Match target against two pattern s. Pattern may be a function, asynchronous
+function or `F.match` pattern. Returns true if target matches against both
+patterns.
+
 ## F.or
 
 *(Added in 0.3.0)*
 
 `(target -> boolean) -> (target -> boolean) -> target -> boolean`
+
+*(Added in 0.4.0)*
+
+`pattern -> pattern -> target -> boolean`
+
+Match target against two pattern s. Pattern may be a function, asynchronous
+function or `F.match` pattern. Returns true if target matches against one or
+both patterns.
 
 ## F.gt
 
