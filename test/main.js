@@ -1179,6 +1179,12 @@ describe("operators", () => {
       .then(result => assert.strictEqual(result, false))
       .then(() => done(), done)
     })
+    it("or with patterns", () => {
+      const singleCase = F.or(/^[a-z]+$/, /^[A-Z]+$/)
+      assert.strictEqual(singleCase("foobar"), true)
+      assert.strictEqual(singleCase("FOOBAR"), true)
+      assert.strictEqual(singleCase("FooBar"), false)
+    })
   })
   describe("not", () => {
     it("synchronous", () => {
