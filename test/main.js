@@ -1135,14 +1135,6 @@ describe("operators", () => {
       const result = F.and(x => x > 0, x => x < 5)(7)
       assert.strictEqual(result, false)
     })
-    it("and curried => true", () => {
-      const result = F.and(x => x > 0)(x => x < 5)(3)
-      assert.strictEqual(result, true)
-    })
-    it("and curried => false", () => {
-      const result = F.and(x => x > 0)(x => x < 5)(7)
-      assert.strictEqual(result, false)
-    })
     it("and asynchronous => true", done => {
       Promise.resolve()
       .then(() => F.and(x => x > 0, x => Promise.resolve(x < 5))(3))
@@ -1156,7 +1148,7 @@ describe("operators", () => {
       assert.strictEqual(singleCase("FOOBAR"), false)
     })
     it("and, multiple arguments", () => {
-      const isInt1To5 = F.and(F.gt(1), F.lt(5), x => x === Math.floor(x))
+      const isInt1To5 = F.and(x => x > 1, x => x < 5, x => x === Math.floor(x))
       assert.strictEqual(isInt1To5(3), true)
       assert.strictEqual(isInt1To5(-1), false)
       assert.strictEqual(isInt1To5(3.5), false)
