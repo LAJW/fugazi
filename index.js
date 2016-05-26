@@ -791,8 +791,8 @@ F.matchKeys = F((pred, obj) => F.every(F(F.args, 1, F.match(pred)), obj))
 
 F.matchLoose = superMatch(false)
 
-F.and = (..._preds) => {
-  const preds = F.map(F.match, _preds)
+F.and = function () {
+  const preds = F.map(F.match, arguments)
   return target => F.every(pred => pred(target), preds)
 }
 
