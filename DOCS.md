@@ -578,6 +578,7 @@ F.F()(
   F.catch(F.id),
   console.log // logs "Foo"
 )
+```
 
 ## F.id
 
@@ -658,7 +659,7 @@ the function.
 ### Examples
 
 ```
-                                                // Temporary objects
+!                                               // Temporary objects
 F.F({ })(                                       // { }
   F.assoc("x", 5),                              // { x : 5 }
   F.assoc("y", F("x")),                         // { x : 5, y : 5 }
