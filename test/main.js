@@ -1301,7 +1301,7 @@ describe("assoc", () => {
       y : 13,
     })
   })
-  it("assoc should override existing property", () => {
+  it("should override existing property", () => {
     const mergeInY = F.assoc("y", 13)
     assert.deepEqual(mergeInY({
       x : 5,
@@ -1311,7 +1311,7 @@ describe("assoc", () => {
       y : 13,
     })
   })
-  it("assoc should synchronize", done => {
+  it("should synchronize", done => {
     Promise.resolve()
     .then(() => F.assoc("y", Promise.resolve(13), {
       x : 5,
@@ -1320,6 +1320,24 @@ describe("assoc", () => {
     .then(result => assert.deepEqual(result, {
       x : 5,
       y : 13,
+    }))
+    .then(() => done(), done)
+  })
+  it("should execute value if function and merge in it's result", () => {
+    const mergeInY = F.assoc("y", F("x"))
+    assert.deepEqual(mergeInY({
+      x : 5
+    }), {
+      x : 5,
+      y : 5
+    })
+  })
+  it("should execute value if function, synchronize and merge in if value returns promise", done => {
+    Promise.resolve()
+    .then(() => F.assoc("y", object => Promise.resolve(object.x), { x : 5 }))
+    .then(result => assert.deepEqual(result, {
+      x : 5,
+      y : 5,
     }))
     .then(() => done(), done)
   })
