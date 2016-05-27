@@ -639,3 +639,11 @@ Use if regular compose fails to detect number of function arguments.
 *(Added in 0.1.0)*
 
 `F` Without curry overload
+
+## F.assoc
+
+*(Added in 0.4.0)*
+
+`key -> value -> object`
+
+Create a flat copy of the object with new property. New property will override existing base object property.
