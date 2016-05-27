@@ -1290,3 +1290,37 @@ describe("F.F", () => {
     assert.strictEqual(result, 12)
   })
 })
+
+describe("assoc", () => {
+  it("merge in value synchronously", () => {
+    const mergeInY = F.assoc("y", 13)
+    assert.deepEqual(mergeInY({
+      x : 5
+    }), {
+      x : 5,
+      y : 13,
+    })
+  })
+  it("assoc should override existing property", () => {
+    const mergeInY = F.assoc("y", 13)
+    assert.deepEqual(mergeInY({
+      x : 5,
+      y : -3,
+    }), {
+      x : 5,
+      y : 13,
+    })
+  })
+  it("assoc should synchronize", done => {
+    Promise.resolve()
+    .then(() => F.assoc("y", Promise.resolve(13), {
+      x : 5,
+      y : -3,
+    }))
+    .then(result => assert.deepEqual(result, {
+      x : 5,
+      y : 13,
+    }))
+    .then(() => done(), done)
+  })
+})
