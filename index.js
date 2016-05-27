@@ -849,6 +849,18 @@ F.rejector = x => () => {
 
 F.assoc = F((key, value, target) => {
   const object = Object.assign({}, target)
-  object[key] = value
+  if (isFunction(value)) {
+    const result = value(target)
+    if (isPromise(result)) {
+      return result
+      .then(result => {
+        object[key] = result
+        return object
+      })
+    }
+    object[key] = result
+  } else {
+    object[key] = value
+  }
   return object
 })
