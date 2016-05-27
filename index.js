@@ -846,3 +846,9 @@ F.resolver = x => () => x
 F.rejector = x => () => {
   throw x
 }
+
+F.assoc = F((key, value, target) => {
+  const object = Object.assign({}, target)
+  object[key] = value
+  return object
+})
