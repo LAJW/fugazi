@@ -646,4 +646,22 @@ Use if regular compose fails to detect number of function arguments.
 
 `key -> value -> object`
 
-Create a flat copy of the object with new property. New property will override existing base object property.
+`key -> (object -> value) -> object`
+
+Create a flat copy of the object with new property. New property will override
+existing base object property.
+
+If value is a function, it will be invoked with object and its result will be
+assigned. If you want to assoc functions, use `F.resolver(function))` to wrap
+the function.
+
+### Examples
+
+```
+                                                // Temporary objects
+F.F({ })(                                       // { }
+  F.assoc("x", 5),                              // { x : 5 }
+  F.assoc("y", F("x")),                         // { x : 5, y : 5 }
+  F.assoc("foo", () => Promise.resolve("bar"))  // Promise resolving to:
+).then(result => { ... }                        // { x : 5, y : 5, foo: "bar" }
+```
