@@ -519,8 +519,9 @@ F.compose = function() {
 }
 
 F.catch = handler => {
-  handler.catcher = true
-  return handler
+  const catcher = err => handler(err)
+  catcher.catcher = true
+  return catcher
 }
 
 F.curryN = (length, func) => R.curryN(length, callThen(func))
