@@ -481,27 +481,6 @@ const match = superMatch(true)
 
 // Essentials
 
-/**
- * Performs left-to-right function composition. The leftmost function may accept
- * multiple arguments, other ones must be unary. If one of functions resolves
- * value through promise, wait for it and apply next function on the result.
- * @function compose
- * @static
- * @param {Function} function... Functions to concatenate
- * @return {Function} New composed function
- * @example
- * const fSync = F.compose(a => a * 2,
- *                         a => Math.pow(a, 2),
- *                         a => a + 1)
- * fSync(1) // returns 5
- * fSync(2) // returns 17
- *
- * const fAsync = F.compose(a => Promise.resolve(a * 2),
- *                          a => Math.pow(a, 2),
- *                          a => Promise.resolve(a + 1))
- * fAsync(1).then(result => {  }) // result is 5
- * fAsync(2).then(result => {  }) // result is 17
- */
 F.compose = function() {
   const funcs = arguments;
   const f1 = funcs[0]
@@ -539,21 +518,6 @@ F.compose = function() {
   }
 }
 
-/**
- * Create exception handler, use only in conjunction with F.compose. Does also
- * catch promise rejections
- * @function catch
- * @static
- * @param {Function} handler Exception handler. Accepts only one argument -
- * thrown error
- * @return {Function} Function that will handle exceptions thrown inside
- * composed function
- * @example
- * const param = F(object => object.param,  // throws if object is undefined
- *                 F.catch(() => "param not found"))
- * param({ param : 1 }) // returns 1
- * param(undefined)     // returns "param not found"
- */
 F.catch = handler => {
   handler.catcher = true
   return handler
@@ -581,61 +545,8 @@ F.args = callThen(function() {
 
 // Utilities
 
-/**
- * <pre>key -> base -> value</pre>
- * Safely extract property from base object. If object is null or undefined,
- * will return undefined.
- * @function param
- * @static
- * @param {Mixed} key Name of the property.
- * @param {Mixed} base Object from which the property should be extracted
- * @return {Mixed} Value of the property
- * @example
- * const getNestedProperty = F(F.param("nested"), F.param("property"))
- * const object = {
- *   nested : {
- *     property : "Nested properties are terrible"
- *   }
- * }
- * getNestedProperty(object) // returns "Nested properties are terrible"
- * getNestedProperty({ })    // returns undefined
- *
- * // You may also construct it this way
- * const getNestedProperty = F("nested", "property")
- */
 F.param = F.curry((key, base) => base ? base[key] : undefined)
 
-/**
- * Create if ... then chain. Function requires at least 2 arguments. Predicates
- * may resolve through promise. If that's the case function will wait for
- * predicate to resolve and return eventual result in promise.
- *
- * Order of functions is always as follows:
- * <pre>ifFunc, thenFunc [, elseIfFunc, thenFunc... [, elseFunc]</pre>
- * @function ifElse
- * @static
- * @param {Function} function... Function only accepts functions
- * @return {Mixed} function returns result of thenFunc or undefined if elseFunc
- * is not specified. If one of predicates resolves through a promise, function
- * will return result in a promise.
- * @example
- * const sgn = F.ifElse(x => x > 0, // if
- *                      () => 1,    // then
- *
- *                      x => x < 0, // else if
- *                      () => -1,   // then
- *
- *                      () => 0)    // else
- *
- * sgn(5)       // returns 1
- * sgn(-0.5)    // returns -1
- * sgn("Hello") // returns 0
- * // condition resolving through promise
- * const abs = F.ifElse(x => Promise.resolve(x > 0), // if
- *                      x => x,                      // then
- *                      x => x * -1)                 // else
- * abs(-3) // Promise resolving to 3
- */
 F.ifElse = callThen(function () {
   const funcs = [ ]
   for (let i = 0, il = arguments.length - 1; i < il; i += 2) {
@@ -700,34 +611,6 @@ F.ifElse = callThen(function () {
   }
 })
 
-/**
- * <pre>(value -> key -> object -> undefined) -> object -> undefined</pre>
- * Iterate over Array, enumerable, Iterable, Map, Set or function generator.
- * <br>
- * If object is iterable (array, arguments, generator, it'll use for...of loop
- * If key is missing (map, generator), key will be a count of iterations. In
- * case of map, it'll use pair[0] as key and pair[1] as value
- * <br>
- * If object is enumerable (Object literal) it'll use for...in loop.
- * If you want to specify iteration mechanism on your own, use one of the
- * following functions:
- * <ul>
- * <li>F.forEachIterable
- * <li>F.forEachEnumerable
- * <li>F.forEachMap
- * <li>F.forEachSet
- * </ul>
- * @function forEach
- * @static
- * @param {Function} callback Callback function. Accepts 3 arguments - value,
- * key and iterated object
- * @param {Mixed} object Object iterated over
- * @example
- * const eachLog = F.forEach((value, key) => console.log(value, key))
- * eachLog(new Map([ 'key1', 'value1' ], [ 'key2', 'value2' ]) // prints:
- *                                                             // key1 value1
- *                                                             // key2 value2
- */
 F.forEach = F.curry(function (func, object) {
   deref(each, object, arguments)
 })
