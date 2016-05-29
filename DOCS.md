@@ -476,31 +476,23 @@ return promise to negated value.
 
 ## F.and
 
-*(Added in 0.3.0)*
-
-`(target -> boolean) -> (target -> boolean) -> target -> boolean`
-
 *(Added in 0.4.0)*
 
-`pattern -> pattern -> target -> boolean`
+`pattern... -> target -> boolean`
 
-Match target against two pattern s. Pattern may be a function, asynchronous
-function or `F.match` pattern. Returns true if target matches against both
-patterns.
+Match target against two patterns. Pattern may be a function, asynchronous
+function or `F.match` pattern. Returns true if target matches against every
+provided pattern.
 
 ## F.or
 
-*(Added in 0.3.0)*
-
-`(target -> boolean) -> (target -> boolean) -> target -> boolean`
-
 *(Added in 0.4.0)*
 
-`pattern -> pattern -> target -> boolean`
+`pattern... -> target -> boolean`
 
-Match target against two pattern s. Pattern may be a function, asynchronous
-function or `F.match` pattern. Returns true if target matches against one or
-both patterns.
+Match target against patterns. Pattern may be a function, asynchronous function
+or `F.match` pattern. Returns true if matches against at least one of supplied
+patterns.
 
 ## F.gt
 
