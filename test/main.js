@@ -1156,30 +1156,22 @@ describe("operators", () => {
   })
   describe("or", () => {
     it("or synchronous => true", () => {
-      const result = F.or(x => x > 5, x => x < 0, -1)
+      const result = F.or(x => x > 5, x => x < 0)(-1)
       assert.strictEqual(result, true)
     })
     it("or synchronous => false", () => {
-      const result = F.or(x => x > 5, x => x < 0, 3)
-      assert.strictEqual(result, false)
-    })
-    it("or synchronous curried => true", () => {
-      const result = F.or(x => x > 5)(x => x < 0)(-1)
-      assert.strictEqual(result, true)
-    })
-    it("or synchronous curried => false", () => {
-      const result = F.or(x => x > 5)(x => x < 0)(3)
+      const result = F.or(x => x > 5, x => x < 0)(3)
       assert.strictEqual(result, false)
     })
     it("or asynchronous => true", done => {
       Promise.resolve()
-      .then(() => F.or(x => x > 5, x => Promise.resolve(x < 0), -1))
+      .then(() => F.or(x => x > 5, x => Promise.resolve(x < 0))(-1))
       .then(result => assert.strictEqual(result, true))
       .then(() => done(), done)
     })
     it("or asynchronous => false", done => {
       Promise.resolve()
-      .then(() => F.or(x => x > 5, x => Promise.resolve(x < 0), 3))
+      .then(() => F.or(x => x > 5, x => Promise.resolve(x < 0))(3))
       .then(result => assert.strictEqual(result, false))
       .then(() => done(), done)
     })

@@ -680,26 +680,9 @@ F.and = function () {
   return target => F.every(pred => pred(target), preds)
 }
 
-F.or = F.curry((_predA, _predB, target) => {
-  const predA = F.match(_predA)
-  const predB = F.match(_predB)
-  const conditionA = predA(target)
-  if (isPromise(conditionA)) {
-    const conditionB = predB(target)
-    if (isPromise(conditionB)) {
-      return Promise.all([ conditionA, conditionB ])
-      .then(conds => conds[0] || conds[1])
-    } else if (conditionB) {
-      return conditionB
-    } else {
-      return conditionA
-    }
-  } else if (conditionA) {
-    return conditionA
-  } else {
-    return predB(target)
-  }
-})
+F.or = function () {
+  return F.match([ ...arguments ])
+}
 
 F.not = value => isPromise(value)
                  ? value.then(value => !value)
