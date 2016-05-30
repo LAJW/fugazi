@@ -707,7 +707,7 @@ F.F = function () {
   }
 }
 
-F._ = R._
+F._ = R.__
 
 F.resolver = x => () => x
 F.rejector = x => () => {

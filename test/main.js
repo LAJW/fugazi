@@ -146,6 +146,11 @@ describe("curry", () => {
     .end(done)
   })
 
+  it("curry with placeholders", () => {
+    const push = F.curry((obj, arr) => [ ...arr, obj ])
+    const pushInto = push(F._, [ 1, 2, 3 ])
+    assert.deepEqual(pushInto(4), [ 1, 2, 3, 4 ])
+  })
 })
 
 describe("range", () => {
