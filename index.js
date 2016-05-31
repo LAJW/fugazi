@@ -710,3 +710,14 @@ F.assoc = F((key, value, target) => {
   }
   return object
 })
+
+F.merge = F((left, right) => {
+  if (isFunction(left)) {
+    const result = left(right)
+    if (isPromise(result)) {
+      return result.then(left => Object.assign({}, right, left))
+    }
+    return Object.assign({}, right, result)
+  }
+  return Object.assign({}, right, left)
+})
