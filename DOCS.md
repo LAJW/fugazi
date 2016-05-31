@@ -650,11 +650,31 @@ the function.
 
 ### Examples
 
-```
-!                                               // Temporary objects
+```js
+                                                // Temporary objects
 F.F({ })(                                       // { }
   F.assoc("x", 5),                              // { x : 5 }
   F.assoc("y", F("x")),                         // { x : 5, y : 5 }
   F.assoc("foo", () => Promise.resolve("bar"))  // Promise resolving to:
 ).then(result => { ... }                        // { x : 5, y : 5, foo: "bar" }
+```
+
+## F.merge
+
+*(Added in 0.4.0)*
+
+`object -> object -> object`
+
+`(object -> object) -> object -> object`
+
+Flat-merge two objects together. If first object is a function, call it with
+second object and merge with its result. Function's return value and objects
+may be promises. Overlapping properties are taken from the first object.
+
+```js
+                                         // Temporary object
+F.F({ x : 2 })(                          // { x : 2 }
+  F.merge({ y : -3 }),                   // { x : 2, y : -3 }
+  F.merge(({ x, y } => ({ z : x * y }))) // { x : 2, y : -3, z : -6 }
+)
 ```
