@@ -944,7 +944,27 @@ describe("match", () => {
     assert.strictEqual(match(Infinity), false)
     assert.strictEqual(match(50), true)
   })
-  it("match against a constructor of the object", () => {
+  it("match against a ES5 class", () => {
+    function Entity() { /* no-op */ }
+    Entity.prototype = {
+      constructor : Entity,
+      method() { /* no-op */ }
+    }
+    const match = F.match(Entity)
+    assert.strictEqual(match(Set), false)
+    assert.strictEqual(match({ length : 0 }), false)
+    assert.strictEqual(match([ Infinity ]), false)
+    assert.strictEqual(match(new Entity()), true)
+  })
+  it("match against a ES6 class", () => {
+    class Entity { }
+    const match = F.match(Entity)
+    assert.strictEqual(match(Set), false)
+    assert.strictEqual(match({ length : 0 }), false)
+    assert.strictEqual(match([ Infinity ]), false)
+    assert.strictEqual(match(new Entity()), true)
+  })
+  it("match against the Array constructor", () => {
     const match = F.match(Array)
     assert.strictEqual(match(Set), false)
     assert.strictEqual(match({ length : 0 }), false)
@@ -1157,6 +1177,13 @@ describe("operators", () => {
       assert.strictEqual(isInt1To5(3), true)
       assert.strictEqual(isInt1To5(-1), false)
       assert.strictEqual(isInt1To5(3.5), false)
+    })
+    it("match, composed function bug", () => {
+      const result = F.and(
+        F("true", F.eq(true)),
+        F("false", F.eq(false))
+      )({ true : true, false : false })
+      assert.strictEqual(result, true)
     })
   })
   describe("or", () => {

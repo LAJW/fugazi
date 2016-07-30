@@ -11,8 +11,20 @@
 const R        = require("ramda")
 const stream   = require("stream")
 const isStream = require("is-stream")
+const isClass1 = require("is-class")
 
 /******************************************************************************/
+
+function isClass(target) {
+  const x = target.prototype !== undefined
+         && target.prototype !== (() => { /* no-op */ }).prototype
+         && target.prototype !== false
+         && !(target.prototype instanceof Function)
+         && Object.getOwnPropertyNames(target.prototype).sort().join()
+            !== Object.getOwnPropertyNames(function () { /* no-op */ }.prototype).sort().join()
+            || isClass1(target)
+  return x
+}
 
 const id = x => x
 
@@ -447,10 +459,10 @@ const superMatch = strict => pred => {
         return value => typeof value === "number"
       } else if (pred === String) {
         return value => typeof value === "string"
-      } else if (pred.prototype === id.prototype) {
-        return value => pred(value)
-      } else {
+      } else if (isClass(pred)) {
         return value => value && value instanceof pred
+      } else {
+        return value => pred(value)
       }
     } else if (pred instanceof RegExp) {
       return value => pred.test(value)
