@@ -1,6 +1,6 @@
 /******************************************************************************/
 /**
- * @module flowless
+ * @module fugazi
  * @desc Functional asynchronous library
  * @author Lukasz A.J. Wrona (layv.net)
  * @license MIT

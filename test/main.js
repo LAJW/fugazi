@@ -1,7 +1,7 @@
 /******************************************************************************/
 /**
- * @file :test/main.js
- * @desc Unit tests for index.js
+ * @file :test/main
+ * @desc Unit tests for fugazi
  * @author Lukasz A.J. Wrona (layv.net)
  * @license MIT
  */
