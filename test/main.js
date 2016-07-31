@@ -150,7 +150,51 @@ describe("compose", () => {
 
 })
 
+describe("catch", () => {
+
+  it("Should throw when not called with a function", () => {
+    try {
+      F.catch({ })
+      throw new Error("Should have thrown")
+    } catch (err) {
+      assert.ok(err && err instanceof TypeError,
+                "Should throw a TypeError")
+    }
+  })
+
+})
+
 describe("curry", () => {
+
+  it("Should throw when not called with a function", () => {
+    try {
+      F.curry({ })
+      throw new Error("Should have thrown")
+    } catch (err) {
+      assert.ok(err && err instanceof TypeError,
+                "Should throw a TypeError")
+    }
+  })
+
+  it("curryN Should throw when not called with a function", () => {
+    try {
+      F.curryN(5, { })
+      throw new Error("Should have thrown")
+    } catch (err) {
+      assert.ok(err && err instanceof TypeError,
+                "Should throw a TypeError")
+    }
+  })
+
+  it("curryN Should throw when not called with an unsigned integer", () => {
+    try {
+      F.curryN(4.3, Math.pow)
+      throw new Error("Should have thrown")
+    } catch (err) {
+      assert.ok(err && err instanceof TypeError,
+                "Should throw a TypeError")
+    }
+  })
 
   it("synchronous arguments", () => {
     const addMul = F.curry((a, b, c) => (a + b) * c)

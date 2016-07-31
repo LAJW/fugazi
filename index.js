@@ -547,14 +547,31 @@ F.compose = function() {
 }
 
 F.catch = handler => {
+  if (!isFunction(handler)) {
+    throw new TypeError("F.catch(handler): handler should be a function")
+  }
   const catcher = err => handler(err)
   catcher.catcher = true
   return catcher
 }
 
-F.curryN = (length, func) => R.curryN(length, callThen(func))
+F.curryN = (length, func) => {
+  if (!(Math.floor(length) === length && length >= 0)) {
+    throw new TypeError("F.curryN(length, func): Length should be an unsigned integer")
+  } else if (!isFunction(func)) {
+    throw new TypeError("F.curryN(func): func should be a function")
+  } else {
+    return R.curryN(length, callThen(func))
+  }
+}
 
-F.curry = func => F.curryN(func.length, func)
+F.curry = func => {
+  if (!isFunction(func)) {
+    throw new TypeError("F.curry(func): func should be a function")
+  } else {
+    return F.curryN(func.length, func)
+  }
+}
 
 F.range = callThen((a1, a2) => {
   if (a2 === undefined) {
