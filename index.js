@@ -8,22 +8,30 @@
 /******************************************************************************/
 
 "use strict"
-const R        = require("ramda")
-const stream   = require("stream")
-const isStream = require("is-stream")
-const isClass1 = require("is-class")
+const R          = require("ramda")
+const stream     = require("stream")
+const isStream   = require("is-stream")
+const isES6Class = require("is-class")
 
 /******************************************************************************/
 
+// Compare 2 arrays with unique unsorted values (set.values())
+function compareSetValues(left, right) {
+  if (left.length !== right.length) {
+    return false
+  } else {
+    return left.every(val => right.indexOf(val) >= 0)
+  }
+}
+
+// Is ES6 class or ES5 class
+// Doesn't check if target is null/undefined, so check that manually
 function isClass(target) {
-  const x = target.prototype !== undefined
-         && target.prototype !== (() => { /* no-op */ }).prototype
-         && target.prototype !== false
-         && !(target.prototype instanceof Function)
-         && Object.getOwnPropertyNames(target.prototype).sort().join()
-            !== Object.getOwnPropertyNames(function () { /* no-op */ }.prototype).sort().join()
-            || isClass1(target)
-  return x
+  return isES6Class(target)
+         || target.prototype
+            && !(target.prototype instanceof Function)
+            && !compareSetValues(Object.getOwnPropertyNames(target.prototype),
+                                 Object.getOwnPropertyNames(function () { /* no-op */ }.prototype))
 }
 
 const id = x => x
