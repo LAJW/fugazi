@@ -62,6 +62,11 @@ describe("compose", () => {
     assert.strictEqual(result, 8)
   })
 
+  it("Length of the resulting function should be equal to the length of first function in the chain", () => {
+    const sum = (a, b) => a + b
+    assert.strictEqual(sum.length, 2)
+  })
+
   it("Single function, wait for parameters", done => {
     const sum = (a, b) => a + b
     F.compose(sum)(3, Promise.resolve(5))

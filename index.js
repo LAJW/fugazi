@@ -504,7 +504,7 @@ const match = superMatch(true)
 F.compose = function() {
   const funcs = arguments;
   const f1 = funcs[0]
-  return function () {
+  const composed = function () {
     if (R.any(isPromise, arguments)) {
       funcs[0] = () => Promise.all(arguments).then(args => f1(...args))
     } else {
@@ -536,6 +536,8 @@ F.compose = function() {
       return value
     }
   }
+  Object.defineProperty(composed, "length", { value : f1.length })
+  return composed
 }
 
 F.catch = handler => {
