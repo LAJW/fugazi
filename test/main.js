@@ -944,6 +944,15 @@ describe("match", () => {
     assert.strictEqual(match(Infinity), false)
     assert.strictEqual(match(50), true)
   })
+  it("match against a custom named function", () => {
+    const match = F.match(function (value) {
+      return value > 0 && value < 100
+    })
+    assert.strictEqual(match("file.txt"), false)
+    assert.strictEqual(match(-0.0001), false)
+    assert.strictEqual(match(Infinity), false)
+    assert.strictEqual(match(50), true)
+  })
   it("match against a ES5 class", () => {
     function Entity() { /* no-op */ }
     Entity.prototype = {
