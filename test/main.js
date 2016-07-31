@@ -62,9 +62,23 @@ describe("compose", () => {
     assert.strictEqual(result, 8)
   })
 
-  it("Length of the resulting function should be equal to the length of first function in the chain", () => {
-    const sum = (a, b) => a + b
+  it("Length of the resulting function should be equal to the length "
+     + "of first function in the chain, allowing for function "
+     + "composition", () => {
+    const sum = F((a, b) => a + b, parseFloat)
     assert.strictEqual(sum.length, 2)
+  })
+
+  it("Supplying composition with not functions or strings should throw "
+     + "a TypeError", () => {
+    try {
+      const sum = (a, b) => a + b
+      F.compose(sum, {})
+      throw new Error("Should have thrown")
+    } catch (error) {
+      assert.ok(error && error instanceof TypeError,
+                "Error should be an instance of TypeError")
+    }
   })
 
   it("Single function, wait for parameters", done => {

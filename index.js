@@ -502,8 +502,15 @@ const match = superMatch(true)
 // Essentials
 
 F.compose = function() {
-  const funcs = arguments;
+  const funcs = [ ...arguments ];
   const f1 = funcs[0]
+  // typecheck
+  funcs.forEach((funcs, i) => {
+    if (typeof funcs !== "function"
+        && typeof funcs !== "string") {
+      throw new TypeError(`F.compose: Argument ${i} is neither a function nor a string`)
+    }
+  })
   const composed = function () {
     if (R.any(isPromise, arguments)) {
       funcs[0] = () => Promise.all(arguments).then(args => f1(...args))
@@ -512,8 +519,7 @@ F.compose = function() {
     }
     let value
     let isError = false // is value an error
-    for (let i = 0, il = funcs.length; i < il; i++) {
-      const func = funcs[i]
+    funcs.forEach(func => {
       if (isPromise(value)) {
         if (func.catcher) {
           value = value.catch(func)
@@ -529,7 +535,7 @@ F.compose = function() {
           isError = true
         }
       }
-    }
+    })
     if (isError) {
       throw value
     } else {
