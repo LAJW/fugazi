@@ -1,6 +1,10 @@
 Fugazi - Changelog
 ================================================================================
 
+# 2016-08-01, Version 0.4.1
+ - Fix a bug, where F.match would not work with functions created using
+   function () { } syntax, treating them as class constructors
+ - "Compile-time" type safety for F.compose, F.curry, F.curryN and F.match
 # 2016-05-17, Version 0.3.0
  - Asynchronous `F.or(pred, pred)` and `F.and(pred, pred)`. F.match predicates
    are not yet implemented.
