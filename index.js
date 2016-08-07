@@ -673,6 +673,7 @@ F.reduce = F.curry(function(func, prev, object) {
 })
 
 F.filter = F.curry((func, object) => deref(filter, object, [ match(func), object ]))
+F.filterKeys = F((pred, object) => F.filter(F(F.args, "1", F.match(pred)), object))
 F.find = F.curry((func, object) => deref(find, object, [ match(func), object ]))
 F.some = F.curry((func, object) => deref(some, object, [ match(func), object ]))
 F.every = F.curry((func, object) => F(F.some(F(F.match(func), R.not)), R.not)(object))
