@@ -30,12 +30,12 @@
   "dependencies": {
     "is-class": "0.0.4",
     "is-stream": "^1.1.0",
-    "ramda": "~0.21.0"
+    "ramda": "^0.22.1"
   },
   "devDependencies": {
     "coveralls": "^2.11.9",
     "istanbul": "^0.4.2",
-    "mocha": "^2.4.5",
+    "mocha": "^3.0.1",
     "npm-check": "^5.2.1",
     "stream-array": "^1.1.2"
   }
