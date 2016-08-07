@@ -976,6 +976,16 @@ describe("every", () => {
     .then(result => assert.strictEqual(result, true))
     .end(done)
   })
+  it("Every element matches pattern", () => {
+    const isCollectionOfStrings = F.every(String)
+    const result = isCollectionOfStrings([ "one", "two", "three" ])
+    assert.strictEqual(result, true)
+  })
+  it("Not all elements match the pattern", () => {
+    const isCollectionOfStrings = F.every(String)
+    const result = isCollectionOfStrings([ "one", 2, "three" ])
+    assert.strictEqual(result, false)
+  })
 })
 
 describe("match", () => {

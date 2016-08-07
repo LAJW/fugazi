@@ -470,7 +470,9 @@ const superMatch = strict => pred => {
       } else if (isClass(pred)) {
         return value => value && value instanceof pred
       } else {
-        return value => pred(value)
+        return function () {
+          return pred.apply(undefined, arguments)
+        }
       }
     } else if (pred instanceof RegExp) {
       return value => pred.test(value)
@@ -676,27 +678,11 @@ F.reduce = F.curry(function(func, prev, object) {
   return deref(reduce, object, arguments)
 })
 
-F.find = F.curry(function(func, object) {
-  if (!isFunction(func)) {
-    return deref(find, object, [ match(func), object ])
-  }
-  return deref(find, object, arguments)
-})
-
-F.some = F.curry(function (func, object) {
-  if (!isFunction(func)) {
-    return deref(some, object, [ match(func), object ])
-  }
-  return deref(some, object, arguments)
-})
-
-F.every = F.curry((func, object) =>
-  F(F.some(F(func, R.not)), R.not)(object))
-
+F.find = F.curry((func, object) => deref(find, object, [ match(func), object ]))
+F.some = F.curry((func, object) => deref(some, object, [ match(func), object ]))
+F.every = F.curry((func, object) => F(F.some(F(F.match(func), R.not)), R.not)(object))
 F.match = match
-
 F.matchKeys = F((pred, obj) => F.every(F(F.args, 1, F.match(pred)), obj))
-
 F.matchLoose = superMatch(false)
 
 F.and = function () {
