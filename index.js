@@ -663,12 +663,6 @@ F.forEach = F.curry(function (func, object) {
   deref(each, object, arguments)
 })
 
-F.filter = F.curry(function (func, object) {
-  if (!isFunction(func)) {
-    return deref(filter, object, [ match(func), object ])
-  }
-  return deref(filter, object, arguments)
-})
 
 F.map = F.curry(function (func, object) {
   return deref(map, object, arguments)
@@ -678,6 +672,7 @@ F.reduce = F.curry(function(func, prev, object) {
   return deref(reduce, object, arguments)
 })
 
+F.filter = F.curry((func, object) => deref(filter, object, [ match(func), object ]))
 F.find = F.curry((func, object) => deref(find, object, [ match(func), object ]))
 F.some = F.curry((func, object) => deref(some, object, [ match(func), object ]))
 F.every = F.curry((func, object) => F(F.some(F(F.match(func), R.not)), R.not)(object))
