@@ -748,3 +748,13 @@ F.merge = F((left, right) => {
   }
   return Object.assign({}, right, left)
 })
+
+F.effect = func => callThen((...args) => {
+  const first = args[0]
+  const result = func(...args)
+  if (isPromise(result)) {
+    return result.then(() => first)
+  } else {
+    return first
+  }
+})
