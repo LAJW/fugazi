@@ -299,6 +299,9 @@ const map = {
 
 
 const createReduce = generic => (func, prev, enumerable) => {
+  if (isFunction(prev)) {
+    prev = prev(enumerable)
+  }
   const maybePromise = generic.each((value, key) => {
     if (isPromise(prev)) {
       prev = prev.then(prev => func(prev, value, key, enumerable))
