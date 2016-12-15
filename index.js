@@ -37,8 +37,26 @@ function isClass(target) {
 const id = x => x
 
 const isFunction = x => x && x instanceof Function
-const isPromise = x => x && isFunction(x.then) && isFunction(x.catch)
+const isPromise = val => typeof val === "object" && val !== null && typeof val.then === "function"
 const isIterable = x => x && x[Symbol.iterator]
+
+function go_(inst, prev) {
+    const next = inst.next(prev)
+    const { done, value } = next
+    if (done) {
+        return value
+    } else if (isPromise(value)) {
+        return value.then(value => go_(inst, value))
+    } else {
+        return go_(inst, value)
+    }
+}
+
+// optionally resolve generator yields
+function go(gen) {
+    return go_(gen())
+}
+
 
 // Convert to promise and resolve if needed
 const callThen = func => function () {
@@ -689,9 +707,32 @@ F.and = function () {
   return target => F.every(pred => pred(target), preds)
 }
 
-F.or = function () {
-  return F.match([ ...arguments ])
-}
+F.and = callThen((...preds) => {
+  preds = preds.map(F.match)
+  return (...args) => go(function* () {
+    let result
+    for (const pred of preds) {
+      result = yield pred(...args)
+      if (!result) {
+        return false
+      }
+    }
+    return result
+  })
+})
+
+F.or = callThen((...preds) => {
+  preds = preds.map(F.match)
+  return (...args) => go(function* () {
+    for (const pred of preds) {
+      const result = yield pred(...args)
+      if (result) {
+        return result
+      }
+    }
+    return false
+  })
+})
 
 F.not = value => isPromise(value)
                  ? value.then(value => !value)
