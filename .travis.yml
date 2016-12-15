@@ -1,8 +1,8 @@
 sudo: false
 language: node_js
 node_js:
-  - "6"
-  - "5.10"
-  - "5.9"
+  - "6.0"
+  - "6.9"
+  - "7.2"
 script: "npm run coverage"
 after_success: "npm run coveralls"
