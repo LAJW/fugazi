@@ -628,56 +628,18 @@ F.ifElse = callThen(function () {
     const last = arguments[arguments.length - 1]
     funcs.push(isFunction(last) ? last : () => last)
   }
-  return value => {
-    let promise
+  return (...args) => go(function* () {
     for (let i = 0, il = funcs.length - 1; i < il; i += 2) {
       const pred = funcs[i]
       const then = funcs[i + 1]
-      if (promise) {
-        promise = promise.then(container => {
-          if (container) {
-            return container
-          } else {
-            const condition = pred(value)
-            if (isPromise(condition)) {
-              return condition.then(condition => {
-                if (condition) {
-                  return { value : then(value) }
-                }
-              })
-            } else if (condition) {
-              return { value : then(value) }
-            }
-          }
-        })
-      } else {
-        const condition = pred(value)
-        if (isPromise(condition)) {
-          promise = condition
-          .then(condition => {
-            if (condition) {
-              return { value : then(value) }
-            }
-          })
-        } else if (condition) {
-          return then(value)
-        }
+      if (yield pred(...args)) {
+        return then(...args)
       }
     }
-    const last = funcs[funcs.length - 1]
-    if (promise) {
-      return promise
-      .then(container => {
-        if (container) {
-          return container.value
-        } else if (funcs.length % 2) {
-          return last(value)
-        }
-      })
-    } else if (funcs.length % 2) {
-      return last(value)
+    if (funcs.length % 2) {
+      return funcs[funcs.length - 1](...args)
     }
-  }
+  })
 })
 
 F.forEach = F.curry(function (func, object) {
