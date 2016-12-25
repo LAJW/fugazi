@@ -30,6 +30,7 @@
   "dependencies": {
     "is-class": "0.0.4",
     "is-stream": "^1.1.0",
+    "noop2": "^2.0.0",
     "ramda": "^0.22.1"
   },
   "devDependencies": {

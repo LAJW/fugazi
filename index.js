@@ -12,6 +12,7 @@ const R          = require("ramda")
 const stream     = require("stream")
 const isStream   = require("is-stream")
 const isES6Class = require("is-class")
+const noop       = require("noop2")
 
 /******************************************************************************/
 
@@ -24,20 +25,24 @@ function compareSetValues(left, right) {
   }
 }
 
+const noopProtoKeys = Object.getOwnPropertyNames(noop.prototype)
+
 // Is ES6 class or ES5 class
 // Doesn't check if target is null/undefined, so check that manually
 function isClass(target) {
   return isES6Class(target)
          || target.prototype
             && !(target.prototype instanceof Function)
-            && !compareSetValues(Object.getOwnPropertyNames(target.prototype),
-                                 Object.getOwnPropertyNames(function () { /* no-op */ }.prototype))
+            && !compareSetValues(
+              Object.getOwnPropertyNames(target.prototype), noopProtoKeys)
 }
 
 const id = x => x
 
 const isFunction = x => x && x instanceof Function
-const isPromise = val => typeof val === "object" && val !== null && typeof val.then === "function"
+const isPromise = val => typeof val === "object"
+                         && val !== null
+                         && typeof val.then === "function"
 const isIterable = x => x && x[Symbol.iterator]
 
 function go_(inst, prev) {
