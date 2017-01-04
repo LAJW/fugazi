@@ -321,26 +321,6 @@ const map = {
   }
 }
 
-
-const createReduce = generic => (func, prev, enumerable) => {
-  if (isFunction(prev)) {
-    prev = prev(enumerable)
-  }
-  const maybePromise = generic.each((value, key) => {
-    if (isPromise(prev)) {
-      prev = prev.then(prev => func(prev, value, key, enumerable))
-    } else {
-      prev = func(prev, value, key, enumerable)
-    }
-  }, enumerable)
-  if (isPromise(maybePromise)) {
-    return maybePromise.then(() => prev)
-  }
-  return prev
-}
-
-const reduce = map.enumerable(createReduce, generic)
-
 const rangeAsc = function*(l, r) {
   for (; l <= r; l++) {
     yield l
@@ -534,7 +514,14 @@ F.map = F.curry(function (func, object) {
 })
 
 F.reduce = F.curry(function(func, prev, object) {
-  return deref(reduce, object, arguments)
+  return coReduceAny(object, function* (next) {
+    let acc = isFunction(prev) ? yield prev(object) : prev
+    for (let pair; pair = yield next;) {
+      const [ key, value ] = pair
+      acc = yield func(acc, value, key, object)
+    }
+    return acc
+  })
 })
 
 F.filter = F.curry((func, object) => deref(filter, object, [ match(func), object ]))
