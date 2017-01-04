@@ -341,40 +341,6 @@ const createReduce = generic => (func, prev, enumerable) => {
 
 const reduce = map.enumerable(createReduce, generic)
 
-// first promise that passes predicate will resolve
-const findPromise = (func, promises) => new Promise((resolve, reject) => {
-  let resolvedCount = 0
-  for (const promise of promises) {
-    promise.then(value => {
-      if (func(value)) {
-        resolve(value)
-      } else {
-        resolvedCount++
-        if (resolvedCount === promises.length) {
-          resolve(undefined)
-        }
-      }
-    })
-    .catch(reject)
-  }
-})
-
-const createSome = generic => (pred, object) => {
-  let promises = [ ]
-  return generic.until((value, key) => {
-    const condition = pred(value, key, object)
-    if (isPromise(condition)) {
-      promises.push(condition)
-    } else {
-      return condition
-    }
-  }, object)
-  || !!promises.length
-     && findPromise(id, promises).then(result => !!result)
-}
-
-const some = map.enumerable(createSome, generic)
-
 const rangeAsc = function*(l, r) {
   for (; l <= r; l++) {
     yield l
@@ -584,7 +550,20 @@ F.find = F.curry((func, object) => {
     }
   })
 })
-F.some = F.curry((func, object) => deref(some, object, [ match(func), object ]))
+
+F.some = F.curry((func, object) => {
+  const pred = F.match(func)
+  return coReduceAny(object, function* (next) {
+    for (let pair; pair = yield next;) {
+      const [ key, value ] = pair
+      if (yield pred(value, key, object)) {
+        return true
+      }
+    }
+    return false
+  })
+})
+
 F.every = F.curry((func, object) => F(F.some(F(F.match(func), R.not)), R.not)(object))
 F.match = match
 F.matchKeys = F((pred, obj) => F.every(F(F.args, 1, F.match(pred)), obj))
