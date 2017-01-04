@@ -28,6 +28,7 @@
   },
   "homepage": "https://github.com/lajw/fugazi#readme",
   "dependencies": {
+    "co-reduce-any": "^1.0.1",
     "is-class": "0.0.4",
     "is-stream": "^1.1.0",
     "noop2": "^2.0.0",

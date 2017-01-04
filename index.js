@@ -8,11 +8,12 @@
 /******************************************************************************/
 
 "use strict"
-const R          = require("ramda")
-const stream     = require("stream")
-const isStream   = require("is-stream")
-const isES6Class = require("is-class")
-const noop       = require("noop2")
+const R           = require("ramda")
+const stream      = require("stream")
+const isStream    = require("is-stream")
+const isES6Class  = require("is-class")
+const noop        = require("noop2")
+const coReduceAny = require("co-reduce-any")
 
 /******************************************************************************/
 
@@ -358,96 +359,6 @@ const findPromise = (func, promises) => new Promise((resolve, reject) => {
   }
 })
 
-const createFind = until => (func, object) => {
-  const promises = [ ]
-  let result
-  if (until((value, key) => {
-    const condition = func(value, key, object)
-    if (isPromise(condition)) {
-      promises.push(condition.then(condition => condition
-                                   ? { value }
-                                   : undefined))
-    } else if (condition) {
-      result = value
-      return condition
-    }
-  }, object)) {
-    return result
-  } else if (promises.length) {
-    return findPromise(id, promises).then(param("value"))
-  }
-}
-
-const find = {
-  iterable : (func, iterable) => {
-    let i = 0
-    let promise
-    for (const value of iterable) {
-      if (promise) {
-        promise = promise.then(container => {
-          if (container) {
-            return container
-          }
-          const condition = func(value, i)
-          if (isPromise(condition)) {
-            return condition.then(condition => {
-              if (condition) {
-                return { value }
-              }
-              i += 1
-            })
-          } else if (condition) {
-            return { value }
-          } else {
-            i += 1
-          }
-        })
-      } else {
-        const condition = func(value, i)
-        if (isPromise(condition)) {
-          promise = condition.then(condition => {
-            if (condition) {
-              return { value }
-            }
-            i += 1
-          })
-        } else if (condition) {
-          return value
-        } else {
-          i += 1
-        }
-      }
-    }
-    if (promise) {
-      return promise.then(param("value"))
-    }
-  },
-  enumerable : createFind(generic.enumerable.until),
-  map        : createFind(generic.map.until),
-  set        : createFind(generic.set.until),
-  stream     : (pred, stream) => new Promise((resolve, reject) => {
-    let promise = Promise.resolve()
-    stream.on("data", chunk => {
-      promise = promise
-      .then(() => pred(chunk))
-      .then(condition => {
-        if (condition) {
-          stream.pause()
-          resolve(chunk)
-        }
-      })
-      .catch(err => {
-        stream.pause()
-        reject(err)
-      })
-    })
-    stream.on("end", () => {
-      promise.then(() => resolve(undefined))
-    })
-    stream.on("error", reject)
-  })
-}
-
 const createSome = generic => (pred, object) => {
   let promises = [ ]
   return generic.until((value, key) => {
@@ -662,7 +573,17 @@ F.reduce = F.curry(function(func, prev, object) {
 
 F.filter = F.curry((func, object) => deref(filter, object, [ match(func), object ]))
 F.filterKeys = F((pred, object) => F.filter(F(F.args, "1", F.match(pred)), object))
-F.find = F.curry((func, object) => deref(find, object, [ match(func), object ]))
+F.find = F.curry((func, object) => {
+  const pred = F.match(func)
+  return coReduceAny(object, function* (next) {
+    for (let pair; pair = yield next;) {
+      const [ key, value ] = pair
+      if (yield pred(value, key, object)) {
+        return value
+      }
+    }
+  })
+})
 F.some = F.curry((func, object) => deref(some, object, [ match(func), object ]))
 F.every = F.curry((func, object) => F(F.some(F(F.match(func), R.not)), R.not)(object))
 F.match = match
