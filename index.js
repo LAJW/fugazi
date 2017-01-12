@@ -46,6 +46,55 @@ const isPromise = val => typeof val === "object"
                          && typeof val.then === "function"
 const isIterable = x => x && x[Symbol.iterator]
 
+class Result {
+  constructor(obj) {
+    if (typeof obj === "object" && obj !== null) {
+      if (obj instanceof Set) {
+        this._obj = new Set()
+        this._add = this._set
+      } else if (obj instanceof Map) {
+        this._obj = new Map()
+        this._add = this._map
+      } else if (obj instanceof stream) {
+        this._obj = new stream.PassThrough()
+        this._add = this._stream
+      } else if (isIterable(obj)) {
+        this._obj = [ ]
+        this._add = this._array
+      } else {
+        this._obj = { }
+        this._add = this._object
+      }
+    } else {
+      throw new TypeError("Supplied object is not enumerable")
+    }
+  }
+  _array(key, value) {
+    this._obj.push(value)
+  }
+  _stream(key, value) {
+    this._obj.write(value)
+  }
+  _map(key, value) {
+    this._obj.set(key, value)
+  }
+  _set(key, value) {
+    this._obj.add(value)
+  }
+  _object(key, value) {
+    this._obj[key] = value
+  }
+  add(key, value) {
+    this._add(key, value)
+  }
+  get() {
+    return this._obj
+  }
+  static create(obj) {
+    return new Result(obj)
+  }
+}
+
 function go_(inst, prev) {
     const next = inst.next(prev)
     const { done, value } = next
@@ -73,253 +122,6 @@ const callThen = func => function () {
 }
 
 const param = key => base => base ? base[key] : undefined
-
-const forOf = (cb, object) => {
-  let i = 0
-  for (const value of object) {
-    cb(value, i, object)
-    i++
-  }
-}
-
-const forIn = (cb, object) => {
-  for (const key in object) {
-    cb(object[key], key, object)
-  }
-}
-
-const untilOf = (cb, object) => {
-  let i = 0
-  for (const value of object) {
-    const result = cb(value, i, object)
-    if (result) {
-      return result
-    }
-    i++
-  }
-}
-
-const untilIn = (cb, object) => {
-  for (const key in object) {
-    const result = cb(object[key], key, object)
-    if (result) {
-      return result
-    }
-  }
-}
-
-const generic = {
-  iterable : {
-    create : () => [ ],
-    store  : (object, value) => object.push(value),
-    each   : forOf,
-    until  : untilOf,
-  },
-  enumerable : {
-    create : () => ({ }),
-    store  : (object, value, key) => object[key] = value,
-    each   : forIn,
-    until  : untilIn,
-  },
-  map : {
-    create : () => new Map(),
-    store  : (object, value, key) => object.set(key, value),
-    each   : (cb, map) => forOf(pair => cb(pair[1], pair[0], map), map),
-    until  : (cb, map) => untilOf(pair => cb(pair[1], pair[0], map), map),
-  },
-  set : {
-    create : () => new Set(),
-    store  : (object, value) => object.add(value),
-    each   : forOf,
-    until  : untilOf,
-  },
-  stream : {
-    create : () => new stream.PassThrough(),
-    store  : (stream, value) => stream.write(value),
-    each   : (proc, stream) => new Promise((resolve, reject) => {
-      stream.on("data", chunk => {
-        proc(chunk)
-      })
-      stream.on("end", () => resolve())
-      stream.on("error", err => reject(err))
-    }),
-    until : (proc, stream) => new Promise((resolve, reject) => {
-      let result
-      stream.on("data", chunk => {
-        result = proc(chunk)
-        if (result) {
-          stream.pause()
-        }
-      })
-      stream.on("end", () => resolve())
-      stream.on("error", err => reject(err))
-    })
-  }
-}
-
-const each = {
-  map        : generic.map.each,
-  set        : generic.set.each,
-  iterable   : generic.iterable.each,
-  enumerable : generic.enumerable.each,
-  stream     : generic.stream.each,
-}
-
-const deref = (alg, target, args) => {
-  if (target instanceof Set) {
-    return alg.set(...args)
-  } else if (target instanceof Map) {
-    return alg.map(...args)
-  } else if (isIterable(target)) {
-    return alg.iterable(...args)
-  } else if (isStream(target)) {
-    return alg.stream(...args)
-  } else {
-    return alg.enumerable(...args)
-  }
-}
-
-const createFilter = generic => (pred, object) => {
-  let result = generic.create()
-  let promise
-  generic.each((val, key) => {
-    const condition = pred(val, key, object)
-    if (isPromise(condition)) {
-      if (!promise) {
-        promise = condition
-      } else {
-        promise = promise.then(condition)
-      }
-      promise.then(condition => {
-        if (condition) {
-          generic.store(result, val, key)
-        }
-      })
-    } else if (condition) {
-      generic.store(result, val, key)
-    }
-  }, object)
-  if (promise) {
-    return promise.then(() => result)
-  } else {
-    return result
-  }
-}
-
-const filter = {
-  set        : createFilter(generic.set),
-  map        : createFilter(generic.map),
-  enumerable : createFilter(generic.enumerable),
-  iterable   : (func, iterable) => {
-    const result     = [ ] // results resolved immediately
-    const rest       = [ ] // unresolved values
-    const conditions = [ ] // asynchronous condition map for rest
-    each.iterable((value, key) => {
-      const condition = func(value, key, iterable)
-      if (conditions.length || isPromise(condition)) {
-        conditions.push(condition)
-        rest.push(value)
-      } else if (condition) {
-        result.push(value)
-      }
-    }, iterable)
-    if (conditions.length) {
-      return Promise.all(conditions)
-      .then(conditions => {
-        conditions.forEach((condition, key) => {
-          if (condition) {
-            result.push(rest[key])
-          }
-        })
-        return result
-      })
-    }
-    return result
-  },
-  stream : (pred, stream) => {
-    const out = generic.stream.create()
-    let promise = Promise.resolve()
-    let finished = false
-    stream.on("data", chunk => {
-      promise = promise
-      .then(() => pred(chunk))
-      .then(condition => {
-        if (condition && !finished) {
-          out.write(chunk)
-        }
-      })
-      .catch(err => {
-        stream.pause()
-        out.emit("error", err)
-        finished = true
-      })
-    })
-    stream.on("end", () => {
-      promise.then(() => out.end())
-    })
-    return out
-  }
-}
-
-const createMap = generic => (proc, object) => {
-  const out      = generic.create()
-  const promises = [ ]
-  generic.each((value, key) => {
-    const result = proc(value, key, object)
-    if (isPromise(result)) {
-      promises.push(result)
-      result.then(result => generic.store(out, result, key))
-    } else {
-      generic.store(out, result, key)
-    }
-  }, object)
-  if (promises.length) {
-    return Promise.all(promises)
-    .then(() => out)
-  } else {
-    return out
-  }
-}
-
-const map = {
-  iterable : (func, iterable) => {
-    const result = [ ]
-    let asynchronous = false
-    each.iterable((value, key) => {
-      const element = func(value, key, iterable)
-      if (isPromise(element)) {
-        asynchronous = true
-      }
-      result.push(element)
-    }, iterable)
-    if (asynchronous) {
-      return Promise.all(result)
-    } else {
-      return result
-    }
-  },
-
-  enumerable : createMap(generic.enumerable),
-  set        : createMap(generic.set),
-  map        : createMap(generic.map),
-  stream     : (proc, stream) => {
-    const out = generic.stream.create()
-    let promise = Promise.resolve()
-    stream.on("data", chunk => {
-      promise = promise
-      .then(() => proc(chunk))
-      .then(result => out.write(result))
-      .catch(err => {
-        out.emit("error", err)
-        stream.pause()
-      })
-    })
-    stream.on("end", () => {
-      promise.then(() => out.end())
-    })
-    return out
-  }
-}
 
 const rangeAsc = function*(l, r) {
   for (; l <= r; l++) {
@@ -363,7 +165,10 @@ const superMatch = strict => pred => {
       const possible = pred.map(superMatch(strict))
       return value => F.some(pred => pred(value), possible)
     } else if (pred instanceof Object) {
-      const subMatches = map.enumerable(superMatch(strict), pred)
+      const subMatches = { }
+      for (const key in pred) {
+        subMatches[key] = superMatch(strict)(pred[key])
+      }
       if (strict) {
         return value => {
           if (!value || !(value instanceof Object)
@@ -504,13 +309,28 @@ F.ifElse = callThen(function () {
   })
 })
 
-F.forEach = F.curry(function (func, object) {
-  deref(each, object, arguments)
+F.forEach = F((proc, obj) => {
+  coReduceAny(obj, function* (next) {
+    for (let pair; pair = yield next;) {
+      const [ key, value ] = pair
+      proc(value, key, obj)
+    }
+  })
 })
 
 
-F.map = F.curry(function (func, object) {
-  return deref(map, object, arguments)
+F.map = F.curry((proc, object) => {
+  const result = Result.create(object)
+  return coReduceAny(object, function* (next) {
+    for (let pair; pair = yield next;) {
+      const [ key, value ] = pair
+      result.add(key, yield proc(value, key, object))
+    }
+    if (isStream(result.get())) {
+      result.get().end()
+    }
+    return result.get()
+  }) // TODO: Return stream immediately
 })
 
 F.reduce = F.curry(function(func, prev, object) {
@@ -524,7 +344,23 @@ F.reduce = F.curry(function(func, prev, object) {
   })
 })
 
-F.filter = F.curry((func, object) => deref(filter, object, [ match(func), object ]))
+F.filter = F.curry((func, object) => {
+  const pred = F.match(func)
+  const result = Result.create(object)
+  return coReduceAny(object, function* (next) {
+    for (let pair; pair = yield next;) {
+      const [ key, value ] = pair
+      if (yield pred(value, key, object)) {
+        result.add(key, value)
+      }
+    }
+    if (isStream(result.get())) {
+      result.get().end()
+    }
+    return result.get()
+  }) // TODO: Return stream immediately
+})
+
 F.filterKeys = F((pred, object) => F.filter(F(F.args, "1", F.match(pred)), object))
 F.find = F.curry((func, object) => {
   const pred = F.match(func)
@@ -588,10 +424,7 @@ F.or = callThen((...preds) => {
   })
 })
 
-F.not = value => isPromise(value)
-                 ? value.then(value => !value)
-                 : !value
-
+F.not = F(R.not)
 F.eq = F.curry((a, b) => a === b)
 F.eqv = F.curry((a, b) => a == b)
 F.lt = F.curry((a, b) => b < a)
