@@ -87,8 +87,16 @@ class Result {
   add(key, value) {
     this._add(key, value)
   }
-  get() {
-    return this._obj
+  get(promise) {
+    if (isStream(this._obj)) {
+      promise.catch(error => this._obj.emit("error", error))
+             .then(() => this._obj.end())
+      return this._obj
+    } else if (isPromise(promise)) {
+      return promise.then(() => this._obj)
+    } else {
+      return this._obj
+    }
   }
   static create(obj) {
     return new Result(obj)
@@ -121,8 +129,6 @@ const callThen = func => function () {
   : func(...args)
 }
 
-const param = key => base => base ? base[key] : undefined
-
 const rangeAsc = function*(l, r) {
   for (; l <= r; l++) {
     yield l
@@ -139,7 +145,7 @@ const F = module.exports = callThen(function(a1) {
   if (arguments.length === 1 && isFunction(a1)) {
     return F.curry(a1)
   } else {
-    return F.compose(...R.map(R.ifElse(isFunction, id, param), arguments))
+    return F.compose(...R.map(R.ifElse(isFunction, id, key => F.param(key)), arguments))
   }
 })
 
@@ -321,16 +327,12 @@ F.forEach = F((proc, obj) => {
 
 F.map = F.curry((proc, object) => {
   const result = Result.create(object)
-  return coReduceAny(object, function* (next) {
+  return result.get(coReduceAny(object, function* (next) {
     for (let pair; pair = yield next;) {
       const [ key, value ] = pair
       result.add(key, yield proc(value, key, object))
     }
-    if (isStream(result.get())) {
-      result.get().end()
-    }
-    return result.get()
-  }) // TODO: Return stream immediately
+  }))
 })
 
 F.reduce = F.curry(function(func, prev, object) {
@@ -347,18 +349,14 @@ F.reduce = F.curry(function(func, prev, object) {
 F.filter = F.curry((func, object) => {
   const pred = F.match(func)
   const result = Result.create(object)
-  return coReduceAny(object, function* (next) {
+  return result.get(coReduceAny(object, function* (next) {
     for (let pair; pair = yield next;) {
       const [ key, value ] = pair
       if (yield pred(value, key, object)) {
         result.add(key, value)
       }
     }
-    if (isStream(result.get())) {
-      result.get().end()
-    }
-    return result.get()
-  }) // TODO: Return stream immediately
+  }))
 })
 
 F.filterKeys = F((pred, object) => F.filter(F(F.args, "1", F.match(pred)), object))
@@ -391,11 +389,6 @@ F.every = F.curry((func, object) => F(F.some(F(F.match(func), R.not)), R.not)(ob
 F.match = match
 F.matchKeys = F((pred, obj) => F.every(F(F.args, 1, F.match(pred)), obj))
 F.matchLoose = superMatch(false)
-
-F.and = function () {
-  const preds = F.map(F.match, arguments)
-  return target => F.every(pred => pred(target), preds)
-}
 
 F.and = callThen((...preds) => {
   preds = preds.map(F.match)

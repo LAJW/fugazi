@@ -111,4 +111,14 @@ describe("map", () => {
     })
     .catch(done)
   })
+  it("Throw TypeError on non enumerable", done => {
+    Promise.resolve(1984)
+    .then(F.map(() => ({ })))
+    .then(() => done(new Error("Should have rejected")))
+    .catch(error => {
+      assert.ok(error instanceof TypeError, "Should throw TypeError")
+      done()
+    })
+    .catch(done)
+  })
 })
