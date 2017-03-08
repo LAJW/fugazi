@@ -1,5 +1,5 @@
-Asynchronous functional library for Node 5+
-============================================
+Asynchronous functional library for Node
+========================================
 [![Build Status](https://travis-ci.org/LAJW/fugazi.svg?branch=master)](https://travis-ci.org/LAJW/fugazi)
 [![Coverage Status](https://coveralls.io/repos/github/LAJW/fugazi/badge.svg?branch=master)](https://coveralls.io/github/LAJW/fugazi?branch=master)
 [![Dependencies](https://david-dm.org/lajw/fugazi.svg)](https://david-dm.org/lajw/fugazi)
