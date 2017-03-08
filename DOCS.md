@@ -404,9 +404,16 @@ returns `undefined`. Asynchronous callbacks may be executed out of order.
 
 `( sum value key container -> sum ) -> sum -> container -> sum`
 
+*(Changed in 0.5.0)*
+
+`( sum value key container -> sum ) -> sum -> (container -> sum) -> sum`
+
 Reduce any container to a sum. Sum is the state shared between iterations.
 Asynchronous callbacks are always executed in the order of elements in the
 original container. Synchronizes stream and returns promise resolving to sum.
+
+If container is a function, it is being called with the container to
+create initial sum.
 
 ## F.filter
 
@@ -462,6 +469,14 @@ function or `F.match` pattern. Asynchronous patterns are resolved in parallel.
 `container -> container`
 
 Synchronize values of the container.
+
+## F.filterKeys
+
+*(Added in 0.5.0)*
+
+`pattern -> container -> boolean`
+
+Same as F.filter but pattern matches against the key instead of the value.
 
 # Logic
 
@@ -678,3 +693,13 @@ F.F({ x : 2 })(                          // { x : 2 }
   F.merge(({ x, y } => ({ z : x * y }))) // { x : 2, y : -3, z : -6 }
 )
 ```
+
+## F.effect
+
+*(Added in 0.5.0)*
+
+`(object -> undefined) -> object -> object`
+
+Function for side effects. Calls provided side effect function with
+the object, ignores the result and returns the object. Forwards
+rejections from promises returned from the function.
