@@ -3,3 +3,8 @@ test
 .eslintrc.js
 .tern-project
 .travis.yml
+.yarn.lock
+DOCS.md
+coverage
+CHANGELOG.md
+
