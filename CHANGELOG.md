@@ -1,6 +1,19 @@
 Fugazi - Changelog
 ================================================================================
 
+# 2017-03-13, Version 0.5.1
+ - Remove documentation and build files from the final package
+# 2017-03-08, Version 0.5.0
+ - Major refactor using function generators
+ - Error handling for Node Streams
+ - F("key") works with promised object properties
+ - F.match(constructor) - Enhanced matching for constructors. Now works with native JS objects and ES4-based classes (as long as the function has a custom prototype)
+ - F.or(false, "two") now returns "two" instead of true, just like || operator
+ - F.and(true, "three") now returns "three" instead of true, just like && operator
+ - New function for error handling in asynchronous side effects - F.effect
+ - F.reduce now treats initial element as factory
+ - F.filterKeys for filtering objects and maps based on keys
+ - Dropped support for Node 5. Node 6 LTS is a required minimum
 # 2016-08-01, Version 0.4.1
  - Fix a bug, where F.match would not work with functions created using
    function () { } syntax, treating them as class constructors
