@@ -646,7 +646,9 @@ Use if regular compose fails to detect number of function arguments.
 
 *(Added in 0.1.0)*
 
-`F` Without curry overload
+Alias for `F` with reversed arguments for immediate application.
+
+`F(...functions)(...arguments)` and `F.F(...arguments)(...functions)` are equivalent.
 
 ## F.assoc
 
