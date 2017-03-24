@@ -1,7 +1,7 @@
 {
   "private": false,
   "name": "fugazi",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "description": "Functional ramda-like asynchronous library for Node 5.9+",
   "main": "index.js",
   "scripts": {
