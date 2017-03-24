@@ -51,4 +51,19 @@ describe("F.F", () => {
     )
     assert.strictEqual(result, 12)
   })
+  it("work with strings and numbers", () => {
+    const object = {
+      deeply : {
+        nested : {
+          property : { }
+        }
+      }
+    }
+    const result = F.F(object)(
+      "deeply",
+      "nested",
+      "property"
+    )
+    assert.strictEqual(result, object.deeply.nested.property)
+  })
 })
